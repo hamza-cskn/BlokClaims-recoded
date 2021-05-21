@@ -9,6 +9,7 @@ import mc.obliviate.blokclaims.homes.ClaimHome;
 import mc.obliviate.blokclaims.invite.Invite;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.utils.claim.ClaimCore;
+import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.energy.EnergyUtils;
 import mc.obliviate.blokclaims.utils.timer.TimerUtils;
@@ -179,7 +180,7 @@ public class ClaimData {
         for (Hologram holo : HologramsAPI.getHolograms(plugin)) {
             if (!holo.getLocation().getWorld().isChunkLoaded(holo.getLocation().getBlockX() / 16, holo.getLocation().getBlockZ() / 16))
                 return null;
-            if (getClaimID().equals(ClaimCore.getChunkID(holo.getLocation().getChunk()))) {
+            if (getClaimID().equals(ClaimUtils.getChunkID(holo.getLocation().getChunk()))) {
                 return holo;
 
             }
@@ -192,7 +193,7 @@ public class ClaimData {
     public void removeHolograms() {
         for (Hologram holo : HologramsAPI.getHolograms(plugin)) {
             if (holo.getLocation().getWorld().isChunkLoaded(holo.getLocation().getBlockX() / 16, holo.getLocation().getBlockZ() / 16)) {
-                if (getClaimID().equals(ClaimCore.getChunkID(holo.getLocation().getChunk()))) {
+                if (getClaimID().equals(ClaimUtils.getChunkID(holo.getLocation().getChunk()))) {
                     holo.delete();
                 }
             } else {

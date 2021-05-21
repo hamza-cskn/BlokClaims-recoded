@@ -17,22 +17,23 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 
-public class SQLHandler extends AbstractHandler {
+public class SQLHandler {
 
     private Statement statement;
+    private Connection connection;
+    private final BlokClaims plugin;
 
 
     public SQLHandler(BlokClaims plugin) {
-        super(plugin);
+        this.plugin = plugin;
         connect();
-
     }
 
     public void connect() {
         String URL = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + File.separator + "database.db";
         statement = null;
         try {
-            Connection connection = DriverManager.getConnection(URL);
+            connection = DriverManager.getConnection(URL);
             Debug.log("Veritabanına başarıyla bağlanıldı.");
             statement = connection.createStatement();
 
@@ -60,7 +61,6 @@ public class SQLHandler extends AbstractHandler {
         }
         return null;
     }
-
 
     public void updateClaimData(boolean async) throws SQLException {
 
@@ -164,10 +164,10 @@ public class SQLHandler extends AbstractHandler {
         }
     }
 
-
     private OfflinePlayer deserializeOwner(String rawOwner) {
         return stringUUIDtoOfflinePlayer(rawOwner);
     }
+
     private List<ChunkID> deserializeChunkList(String stringChunkList) {
         List<ChunkID> chunkList = new ArrayList<>();
         for (String rawChunk : stringChunkList.split(",")) {
@@ -175,6 +175,7 @@ public class SQLHandler extends AbstractHandler {
         }
         return chunkList;
     }
+
     private List<OfflinePlayer> deserializeMemberList(String stringMemberList) {
         List<OfflinePlayer> memberList = new ArrayList<>();
         for (String memberUUID : stringMemberList.split(",")) {
@@ -182,6 +183,7 @@ public class SQLHandler extends AbstractHandler {
         }
         return memberList;
     }
+
     private HashMap<String, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
         HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
         for (String data : stringPermission.split(",")) {
@@ -192,12 +194,14 @@ public class SQLHandler extends AbstractHandler {
         }
         return permissionStates;
     }
+
     private Location deserializeMainBlock(String mainBlock) {
         String[] mainBlockData = mainBlock.split(";");
         return new Location(Bukkit.getWorld(mainBlockData[0]), stringToInt(mainBlockData[1]), stringToInt(mainBlockData[2]), stringToInt(mainBlockData[3]));
 
     }
-    private List<ClaimHome> deserializeClaimHome(String home)  {
+
+    private List<ClaimHome> deserializeClaimHome(String home) {
         List<ClaimHome> homeList = new ArrayList<>();
         for (String rawHome : home.split(",")) {
             String[] split = rawHome.split(";");
@@ -283,6 +287,31 @@ public class SQLHandler extends AbstractHandler {
         }
         return false;
     }
+
+    public void saveSQLDatas(boolean async) {
+        if (async) Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveSQLDatas_operation(true));
+        else saveSQLDatas_operation(false);
+
+    }
+    private void saveSQLDatas_operation(boolean async) {
+        Bukkit.getLogger().info("SQL database backup started (ASYNC: " + async + ")");
+        if (connection != null && statement != null) {
+            long aaa = System.nanoTime();
+
+            try {
+                updateClaimData(async);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            long bbb = System.nanoTime();
+            Bukkit.getLogger().info("SQL database backup ended. (" + (double) (bbb - aaa) / 1000000.0 + "ms)");
+        } else {
+            Bukkit.getLogger().info("SQL Data saving started without connection or sql statement. blokClaims cancelled it.");
+        }
+
+    }
+
 
 
     //ALWAYS ASYNC

@@ -22,11 +22,11 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
-
         <repository>
             <id>codemc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
+
     </repositories>
 
 
@@ -50,6 +50,7 @@
             <version>2.4.0</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
 

@@ -4,19 +4,19 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.DataHandler;
-import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static mc.obliviate.blokclaims.BlokClaims.useHolographicDisplay;
+import static mc.obliviate.blokclaims.utils.claim.ClaimUtils.isClaimWorld;
 
 public class ClaimCore {
 
@@ -28,50 +28,10 @@ public class ClaimCore {
         this.dataHandler = plugin.getDataHandler();
     }
 
-    // GET CHUNK_ID
-    public static ChunkID getChunkID(Chunk chunk) {
-        if (chunk != null) {
-            return new ChunkID(chunk.getWorld().getName() + "," + chunk.getX() + "," + chunk.getZ());
-        }
-        Debug.log("ChunkID(chunk) is null");
-        return null;
-    }
-
-    public static ChunkID getChunkID(CompletableFuture<Chunk> chunk) {
-        if (chunk != null) {
-            try {
-                return new ChunkID(chunk.get().getWorld().getName() + "," + chunk.get().getX() + "," + chunk.get().getZ());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        Debug.log("ChunkID(async chunk) is null");
-        return null;
-    }
-
-    public static ChunkID getChunkID(Location loc) {
-        if (loc != null) {
-            return new ChunkID(loc.getWorld().getName() + "," + (int) loc.getX() / 16 + "," + (int) loc.getZ() / 16);
-        }
-        Debug.log("ChunkID(loc) is null");
-        return null;
-    }
-
-    public static ChunkID getChunkID(World world, int x, int z, boolean isLocation) {
-        int n = 1;
-        if (isLocation) {
-            n = 16;
-        }
-        if (world != null) {
-            return new ChunkID(world.getName() + "," + x / n + "," + z / n);
-        }
-        Debug.log("ChunkID(wxz) is null");
-        return null;
-    }
 
     // GET CLAIM_DATA
     public ClaimData getClaimData(Location location) {
-        return getClaimData(ClaimCore.getChunkID(location.getChunk()).toString());
+        return getClaimData(ClaimUtils.getChunkID(location.getChunk()).toString());
     }
 
     public ClaimData getClaimData(String chunkStringID) {
@@ -79,32 +39,15 @@ public class ClaimCore {
     }
 
     public ClaimData getClaimData(ChunkID chunk) {
-        return getClaimData(chunk.toString());
+        return dataHandler.getAllClaimDataList().get(
+                dataHandler.getAllChunkList().get(chunk)
+        );
     }
-
-
-    //
-    public void broadcastClaimMembers(ClaimData cd, String str) {
-        for (UUID uuid : cd.getMemberList()) {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p == null) continue;
-            p.sendMessage(str);
-        }
-    }
-
-    public static boolean isClaimWorld(World world) {
-        return BlokClaims.getWorldList().contains(world.getName());
-    }
-
     public boolean isInOwnClaim(Player p) {
         return p != null && getClaimData(p.getLocation()).getOwner().equals(p);
     }
 
-    public ChunkID getCurrentChunkID(Player p) {
-        ChunkID chunkID = playerCurrentClaimData.get(p.getUniqueId());
-        if (chunkID != null) return chunkID;
-        return getChunkID(p.getLocation());
-    }
+
 
     public void createClaim(Player owner, Location mainBlock) {
 
@@ -113,12 +56,12 @@ public class ClaimCore {
 
         if (data == null) {
             if (isClaimWorld(mainBlock.getWorld())) {
-                ChunkID mainChunk = ClaimCore.getChunkID(mainBlock.getChunk());
+                ChunkID mainChunk = ClaimUtils.getChunkID(mainBlock.getChunk());
 
                 List<OfflinePlayer> memberList = new ArrayList<>();
                 List<ChunkID> chunkList = new ArrayList<>();
                 memberList.add(owner);
-                ChunkID chunkID = ClaimCore.getChunkID(mainBlock.getChunk());
+                ChunkID chunkID = ClaimUtils.getChunkID(mainBlock.getChunk());
                 dataHandler.getAllChunkList().put(chunkID, chunkID);
                 chunkList.add(chunkID);
 
@@ -141,6 +84,13 @@ public class ClaimCore {
             owner.sendMessage(Message.getConfigMessage("this-chunk-already-claimed"));
 
         }
+    }
+
+    public ChunkID getCurrentChunkID(Player p) {
+        //TODO replace null as playerCurrentClaimData.get(p.getUniqueId());
+        ChunkID chunkID = null;
+        if (chunkID != null) return chunkID;
+        return ClaimUtils.getChunkID(p.getLocation());
     }
 
 

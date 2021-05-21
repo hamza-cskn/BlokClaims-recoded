@@ -137,11 +137,11 @@ public class ConfigHandler {
         }
 
         for (BlokClaims.CLAIM_PERMISSIONS perm : BlokClaims.CLAIM_PERMISSIONS.values()) {
-            if (!messages.contains("permissions." + perm + ".name")) {
-                messages.set("permissions." + perm + ".name", perm);
+            if (!messages.contains("permissions." + perm.name() + ".name")) {
+                messages.set("permissions." + perm.name() + ".name", perm.name());
             }
-            if (!messages.contains("permissions." + perm + ".description")) {
-                messages.set("permissions." + perm + ".description", Arrays.asList("&7Bu &e{player}&7 adlı oyuncu", "&7izni açmak ve kapatmak için", "&7bu ikonu kullanın."));
+            if (!messages.contains("permissions." + perm.name() + ".description")) {
+                messages.set("permissions." + perm.name() + ".description", Arrays.asList("&7Bu &e{player}&7 adlı oyuncu", "&7izni açmak ve kapatmak için", "&7bu ikonu kullanın."));
             }
 
         }

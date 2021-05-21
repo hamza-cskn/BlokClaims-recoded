@@ -4,7 +4,9 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -59,9 +61,9 @@ public class Invite {
                 .replace("{inviter}", inviter.getName())
                 .replace("{expire_time}", expireTime + ""));
 
-        TextComponent button = new TextComponent(Message.color("&a&l[KABUL ET]"));
+        TextComponent button = new TextComponent(Message.color("<#green>[KABUL ET]"));
         button.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim katıl"));
-        TextComponent button2 = new TextComponent(Message.color(" &c&l[REDDET]"));
+        TextComponent button2 = new TextComponent(Message.color(" <#red>[REDDET]"));
         button2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim reddet"));
 
         target.spigot().sendMessage(button, button2);
