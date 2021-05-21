@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.handlers.ConfigHandler;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.awt.*;
 
@@ -13,6 +14,10 @@ public class Message {
 
     public Message() {
         prefix = color(ConfigHandler.messages.getString("prefix"));
+    }
+
+    public static YamlConfiguration getMessageConfig() {
+        return ConfigHandler.messages;
     }
 
     public static String getConfigMessage(String name) {

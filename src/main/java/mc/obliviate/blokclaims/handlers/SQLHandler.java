@@ -64,7 +64,7 @@ public class SQLHandler {
 
     public void updateClaimData(boolean async) throws SQLException {
 
-        HashMap<String, ClaimData> claimsInSQL = getClaimDataFromDB(async);
+        HashMap<ChunkID, ClaimData> claimsInSQL = getClaimDataFromDB(async);
 
         for (ClaimData claimData : plugin.getDataHandler().getAllClaimDataList().values()) {
 
@@ -220,11 +220,38 @@ public class SQLHandler {
         return homeList;
     }
 
+    public void createTableIfNotExits() {
+        try {
+            Debug.log("Veritabanına başarıyla bağlanıldı.");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS claims (" +
+                    "owner TEXT, " +
+                    "memberList TEXT, " +
+                    "chunkList TEXT, " +
+                    "claimID TEXT NOT NULL, " +
+                    "energy INTEGER, " +
+                    "mainBlock TEXT, " +
+                    "permissions TEXT," +
+                    "homeList TEXT" +
+                    ")");
+            //statement.executeUpdate("CREATE TABLE IF NOT EXISTS logs (" + "logID INTEGER, " + "logType TEXT, " + "logDate TEXT, " + "logData TEXT " + ")");
 
-    public HashMap<String, ClaimData> getClaimDataFromDB(boolean async) throws SQLException {
+            plugin.getDataHandler().setAllClaimDataList(getClaimDataFromDB(false));
+            for (ClaimData cd : plugin.getDataHandler().getAllClaimDataList().values()) {
+                for (ChunkID chunkID : cd.getChunkList()) {
+                    plugin.getDataHandler().getAllChunkList().put(cd.getClaimID(), chunkID);
+                }
+            }
+            Debug.log("Claim data listesi: " + plugin.getDataHandler().getAllClaimDataList().size());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public HashMap<ChunkID, ClaimData> getClaimDataFromDB(boolean async) throws SQLException {
 
 
-        HashMap<String, ClaimData> resultClaimData = new HashMap<>();
+        HashMap<ChunkID, ClaimData> resultClaimData = new HashMap<>();
         String sql = "SELECT * FROM claims";
 
         if (statement == null) {
@@ -264,7 +291,7 @@ public class SQLHandler {
             } else {
                 cd[0] = new ClaimData(plugin, owner, memberList, chunkList, mainBlock, id, energy, permissionStates, homeList);
             }
-            resultClaimData.put(id.toString(), cd[0]);
+            resultClaimData.put(id, cd[0]);
 
 
         }

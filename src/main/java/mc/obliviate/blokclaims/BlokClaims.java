@@ -56,11 +56,18 @@ public class BlokClaims extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        Bukkit.getLogger().info("BlokClaims v" + getDescription().getVersion() + " enabling...");
+        Bukkit.getLogger().info("BlokClaims-recoded v" + getDescription().getVersion() + " enabling...");
+        final Listener canJoin = new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent event) {
+                event.getPlayer().kickPlayer("§cLütfen bekleyin!\n\n§fBlokClaims§7 verileri şu anda yüklenme aşamasında.\n§7Biraz bekledikten sonra tekrar deneyin.");
+            }
+        };
 
         registerListeners();
-        setupHandlers();
         setupCommands();
+        setupHandlers();
+        sqlHandler.createTableIfNotExits();
 
         new Timer(this);
 
@@ -70,6 +77,10 @@ public class BlokClaims extends JavaPlugin {
             getLogger().severe("*** BlokClaims hologramları aktif edilemeyecek. ***");
         }
 
+        Bukkit.getPluginManager().registerEvents(canJoin, this);
+
+        PlayerJoinEvent.getHandlerList().unregister(canJoin);
+
     }
 
 
@@ -78,13 +89,6 @@ public class BlokClaims extends JavaPlugin {
 
         PluginManager pm = Bukkit.getPluginManager();
 
-        final Listener canJoin = new Listener() {
-            @EventHandler
-            public void onJoin(PlayerJoinEvent event) {
-                event.getPlayer().kickPlayer("§cLoading BlokClaims datas\nPlease wait a moment");
-            }
-        };
-        pm.registerEvents(canJoin, this);
 
         pm.registerEvents(new InteractListener(this), this);
         pm.registerEvents(new FlowListener(this), this);
@@ -100,7 +104,6 @@ public class BlokClaims extends JavaPlugin {
         pm.registerEvents(new EntityInteractListener(this), this);
         pm.registerEvents(new DispenserListener(this), this);
         pm.registerEvents(new ProjectileListener(this), this);
-
 
 
     }
@@ -119,6 +122,7 @@ public class BlokClaims extends JavaPlugin {
         dataHandler = new DataHandler();
         teleportUtil = new TeleportUtil(this);
         sqlHandler = new SQLHandler(this);
+
     }
 
     public static List<String> getWorldList() {

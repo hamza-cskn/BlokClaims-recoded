@@ -1,11 +1,8 @@
 package mc.obliviate.blokclaims.handlers;
 
-import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
-import org.bukkit.Bukkit;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 
 public class DataHandler {
@@ -13,10 +10,10 @@ public class DataHandler {
 
 
     /**                  Main Chunk, ClaimData */
-    private final HashMap<ChunkID, ClaimData> allClaimDataList = new HashMap<>();
+    private HashMap<ChunkID, ClaimData> allClaimDataList = new HashMap<>();
 
     /**Any Chunk, Main Chunk*/
-    private final HashMap<ChunkID, ChunkID> allChunkList = new HashMap<>();
+    private HashMap<ChunkID, ChunkID> allChunkList = new HashMap<>();
 
     public HashMap<ChunkID, ChunkID> getAllChunkList() {
         return allChunkList;
@@ -26,7 +23,11 @@ public class DataHandler {
         return allClaimDataList;
     }
 
+    public void setAllClaimDataList(HashMap<ChunkID, ClaimData> newState) {
+        allClaimDataList = newState;
+    }
 
-
-
+    public void setAllChunkList(HashMap<ChunkID, ChunkID> newState) {
+        allChunkList = newState;
+    }
 }
