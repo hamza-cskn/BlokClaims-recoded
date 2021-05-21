@@ -26,20 +26,21 @@ public class BlokClaims extends JavaPlugin {
 
 
     private static final List<String> worldList = new ArrayList<>();
-    public final List<String> allValidPermissions = Arrays.asList(
-            //ALL PERMISSIONS
-            "PLACE_BREAK_SPAWNER",
-            "PLACE_BREAK_BLOCK",
-            "ARMOR_STAND_INTERACT",
-            "ITEM_FRAME_INTERACT",
-            "USE_BUCKET",
-            "USE_CONTAINERS",
-            "USE_POWERABLES",
-            "OPEN_LOGS",
-            "INTERACT_MOBS",
-            "MANAGE_MEMBERS",
-            "EDIT_HOMES"
-    );
+
+    public enum CLAIM_PERMISSIONS {
+        PLACE_BREAK_SPAWNER,
+        PLACE_BREAK_BLOCK,
+        ARMOR_STAND_INTERACT,
+        ITEM_FRAME_INTERACT,
+        USE_BUCKET,
+        USE_CONTAINERS,
+        USE_POWERABLES,
+        OPEN_LOGS,
+        INTERACT_MOBS,
+        MANAGE_MEMBERS,
+        EDIT_HOMES
+    }
+
     public static boolean useHolographicDisplay;
 
 

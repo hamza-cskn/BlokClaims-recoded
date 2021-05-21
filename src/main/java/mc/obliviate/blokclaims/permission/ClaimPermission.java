@@ -30,28 +30,31 @@ public class ClaimPermission {
     }
 
     public void addPermission(String permission) {
-        if (!plugin.allValidPermissions.contains(permission)) return;
+        if (!isValidPermission(permission)) return;
         this.permissions.add(permission);
 
     }
 
     public void removePermission(String permission) {
-        if (!plugin.allValidPermissions.contains(permission)) return;
+        if (!isValidPermission(permission)) return;
         this.permissions.remove(permission);
     }
 
     public boolean hasPermission(String permission) {
         //if (player.isOp()) return true;
-        return (permissions.contains(permission) && plugin.allValidPermissions.contains(permission));
+        return (permissions.contains(permission) && isValidPermission(permission));
     }
 
     public OfflinePlayer getPlayer() {
         return Bukkit.getOfflinePlayer(UUID.fromString(uuid));
     }
 
+    private boolean isValidPermission(String permission) {
+        BlokClaims.CLAIM_PERMISSIONS.valueOf(permission);
+        return true;
+    }
+
     //public String getUuid() { return uuid; }
-
-
 
 
 }

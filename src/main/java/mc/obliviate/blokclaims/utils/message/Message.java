@@ -1,6 +1,7 @@
 package mc.obliviate.blokclaims.utils.message;
 
 import mc.obliviate.blokclaims.BlokClaims;
+import mc.obliviate.blokclaims.handlers.ConfigHandler;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import org.bukkit.ChatColor;
 
@@ -8,14 +9,19 @@ import java.awt.*;
 
 public class Message {
 
+    private static String prefix;
+
+    public Message() {
+        prefix = color(ConfigHandler.messages.getString("prefix"));
+    }
+
     public static String getConfigMessage(String name) {
         return getConfigMessage(name, false);
     }
 
     public static String getConfigMessage(String name, boolean doNotUsePrefix) {
         Debug.log("sending config message" + name, true);
-        String prefix = BlokClaims.instance.messages.getString("prefix");
-        String message = BlokClaims.instance.messages.getString(name);
+        String message = ConfigHandler.messages.getString(name);
 
         if (message != null) {
             if (message.startsWith("[NO_PREFIX]")) {

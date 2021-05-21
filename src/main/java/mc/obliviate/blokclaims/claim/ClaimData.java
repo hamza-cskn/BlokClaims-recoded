@@ -16,8 +16,6 @@ import org.bukkit.*;
 
 import java.util.*;
 
-import static mc.obliviate.blokclaims.BlokClaims.hologramList;
-
 public class ClaimData {
 
     private final BlokClaims plugin;
@@ -27,7 +25,7 @@ public class ClaimData {
     private final List<ChunkID> chunkList;
     private List<ClaimHome> homeList;
     private Location mainBlock;
-    private Energy energy;
+    private final Energy energy;
     private long time;
     private HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
     private final HashMap<String, Invite> invites = new HashMap<>();
@@ -41,8 +39,7 @@ public class ClaimData {
                      ChunkID claimID,
                      long energy,
                      HashMap<String, ClaimPermission> permissionState,
-                     List<ClaimHome> homeList)
-    {
+                     List<ClaimHome> homeList) {
         this.plugin = plugin;
         this.homeList = homeList;
         this.owner = owner;
