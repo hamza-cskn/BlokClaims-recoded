@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 public class Debug {
 
     public static void log(String log, boolean deep) {
-        if (!deep) {
+        if (true || !deep) {
             Bukkit.broadcastMessage("[BlockClaims DEBUG] " + log);
 
         }

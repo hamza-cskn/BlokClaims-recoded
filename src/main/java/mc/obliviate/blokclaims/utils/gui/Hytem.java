@@ -1,5 +1,6 @@
 package mc.obliviate.blokclaims.utils.gui;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -19,6 +20,10 @@ public class Hytem {
     public Hytem(ItemStack item, Action action){
         this.action = action;
         this.item = item;
+    }
+    public Hytem(Material mat, Action action){
+        this.action = action;
+        this.item = new ItemStack(mat);
     }
 
     public Hytem setName(String name) {

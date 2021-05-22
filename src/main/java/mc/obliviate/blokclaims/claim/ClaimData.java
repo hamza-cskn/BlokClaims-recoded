@@ -8,7 +8,6 @@ import mc.obliviate.blokclaims.energy.Energy;
 import mc.obliviate.blokclaims.homes.ClaimHome;
 import mc.obliviate.blokclaims.invite.Invite;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
-import mc.obliviate.blokclaims.utils.claim.ClaimCore;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.energy.EnergyUtils;
@@ -21,25 +20,26 @@ public class ClaimData {
 
     private final BlokClaims plugin;
     private final ChunkID claimID;
-    private OfflinePlayer owner;
-    private final List<OfflinePlayer> memberList;
+    private UUID owner;
+    private final List<UUID> memberList;
     private final List<ChunkID> chunkList;
     private List<ClaimHome> homeList;
     private Location mainBlock;
     private final Energy energy;
     private long time;
-    private HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
+    private HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
     private final HashMap<String, Invite> invites = new HashMap<>();
 
 
+    //TODO Plugin instance!
     public ClaimData(BlokClaims plugin,
-                     OfflinePlayer owner,
-                     List<OfflinePlayer> memberList,
+                     UUID owner,
+                     List<UUID> memberList,
                      List<ChunkID> chunkList,
                      Location mainBlock,
                      ChunkID claimID,
                      long energy,
-                     HashMap<String, ClaimPermission> permissionState,
+                     HashMap<UUID, ClaimPermission> permissionState,
                      List<ClaimHome> homeList) {
         this.plugin = plugin;
         this.homeList = homeList;
@@ -58,31 +58,27 @@ public class ClaimData {
         return energy;
     }
 
-    public void updateTimeConvertation() {
+    public void updateTimeConvertion() {
         setTime(EnergyUtils.convertEnergyToTime(chunkList.size(), this.energy));
     }
 
 
     public void updateEnergyDecreament() {
         getEnergy().setChunks(chunkList.size());
-        updateTimeConvertation();
+        updateTimeConvertion();
     }
 
-    public OfflinePlayer getOwner() {
+    public UUID getOwner() {
         return owner;
     }
 
-    public void setOwner(OfflinePlayer owner) {
+    public void setOwner(UUID owner) {
         this.owner = owner;
     }
 
 
     public List<UUID> getMemberList() {
-        List<UUID> uuids = new ArrayList<>();
-        for (OfflinePlayer p : memberList) {
-            uuids.add(p.getUniqueId());
-        }
-        return uuids;
+        return memberList;
     }
 
     public List<ChunkID> getChunkList() {
@@ -145,15 +141,15 @@ public class ClaimData {
         updateHologram();
     }
 
-    public void addMember(OfflinePlayer newMember) {
+    public void addMember(UUID newMember) {
         if (!this.memberList.contains(newMember)) {
             this.memberList.add(newMember);
         }
     }
 
-    public void removeMember(OfflinePlayer member) {
+    public void removeMember(UUID member) {
         if (member.equals(owner)) return;
-        if (permissionStates != null) permissionStates.remove(member.getUniqueId().toString());
+        if (permissionStates != null) permissionStates.remove(member.toString());
         this.memberList.remove(member);
     }
 
@@ -232,10 +228,7 @@ public class ClaimData {
         }
 
 
-        String owner = "Bulunamadı";
-        OfflinePlayer ownerPlayer = getOwner();
-        if (ownerPlayer != null) owner = ownerPlayer.getName();
-
+        String owner = Bukkit.getOfflinePlayer(getOwner()).getName();
         holo.appendTextLine("Sahip: " + ChatColor.COLOR_CHAR + "b" + owner);
         holo.appendTextLine("Süre: " + ChatColor.COLOR_CHAR + "3" + TimerUtils.getFormattedTime(getTime()));
         holo.appendTextLine("Enerji: " + ChatColor.COLOR_CHAR + "e" + getEnergy().getAmount() + " Enerji");
@@ -245,15 +238,15 @@ public class ClaimData {
 
 
     public ClaimPermission getPermissionState(OfflinePlayer member) {
-        return getPermissionState(member.getUniqueId().toString());
+        return getPermissionState(member.getUniqueId());
     }
 
-    public ClaimPermission getPermissionState(String member) {
+    public ClaimPermission getPermissionState(UUID member) {
         if (permissionStates == null) return new ClaimPermission(plugin, member, claimID, null);
         return permissionStates.get(member);
     }
 
-    public void addPermission(String uuid, String permission) {
+    public void addPermission(UUID uuid, String permission) {
         ClaimPermission cps = permissionStates.get(uuid);
         if (cps == null) {
             List<String> permissions = new ArrayList<>();
@@ -265,7 +258,7 @@ public class ClaimData {
         }
     }
 
-    public void removePermission(String uuid, String permission) {
+    public void removePermission(UUID uuid, String permission) {
         ClaimPermission cps = permissionStates.get(uuid);
         if (cps == null) return;
         cps.removePermission(permission);

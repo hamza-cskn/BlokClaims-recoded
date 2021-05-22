@@ -40,7 +40,7 @@ public class ClaimUtils {
 
     public static ChunkID getChunkID(Location loc) {
         if (loc != null) {
-            return new ChunkID(loc.getWorld().getName() + "," + (int) loc.getX() / 16 + "," + (int) loc.getZ() / 16);
+            return new ChunkID((int) loc.getX() / 16, (int) loc.getZ() / 16, loc.getWorld().getName());
         }
         Debug.log("ChunkID(loc) is null");
         return null;

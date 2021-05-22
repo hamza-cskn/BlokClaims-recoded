@@ -135,7 +135,7 @@ public class Invite {
             Player player = getOnlineTarget();
             player.sendMessage(Message.getConfigMessage("invite.successfully-accepted"));
 
-            cd.addMember(getTarget());
+            cd.addMember(getTarget().getUniqueId());
         }
         //DECLINE
         else {

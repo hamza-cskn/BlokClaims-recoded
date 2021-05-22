@@ -1,5 +1,6 @@
 package mc.obliviate.blokclaims.utils.gui;
 
+import mc.obliviate.blokclaims.BlokClaims;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -8,11 +9,11 @@ import java.util.UUID;
 
 public class InventoryAPI {
 
-    private final Plugin plugin;
+    private final BlokClaims plugin;
     private final InventoryAPI instance;
     private final HashMap<UUID, GUI> players = new HashMap<>();
 
-    public InventoryAPI(Plugin plugin){
+    public InventoryAPI(BlokClaims plugin){
         this.plugin = plugin;
         instance = this;
 
@@ -23,7 +24,7 @@ public class InventoryAPI {
         return instance;
     }
 
-    public Plugin getPlugin() {
+    public BlokClaims getPlugin() {
         return plugin;
     }
 

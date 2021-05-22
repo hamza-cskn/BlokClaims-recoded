@@ -5,6 +5,7 @@ import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
+import mc.obliviate.blokclaims.gui.ClaimStoneGUI;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,27 +30,27 @@ public class InteractListener extends ListenerHandler implements Listener {
     public void onInteractEvent(PlayerInteractEvent e) {
         if (!ClaimUtils.isClaimWorld(e.getPlayer().getWorld())) return;
 
+
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            if (!Objects.equals(e.getHand(), EquipmentSlot.HAND)) return;
             if (e.getClickedBlock() == null) return;
-            ClaimData cd = cm.getClaimData(e.getClickedBlock().getLocation());
+            ClaimData cd = cm.getClaimData(ClaimUtils.getChunkID(e.getClickedBlock().getLocation()));
             if (cd == null) return;
             Material type = e.getClickedBlock().getType();
             if (type.equals(Material.BEDROCK)) {
-                if (Objects.equals(e.getHand(), EquipmentSlot.HAND)) {
                     if (cd.getMemberList().contains(e.getPlayer().getUniqueId())) {
                         if (cd.getMainBlock().equals(e.getClickedBlock().getLocation())) {
-                            Bukkit.broadcastMessage(e.getPlayer().getName() + ", " + cd.getClaimID());
                             //TODO Player current claim data
                             //BlokClaims.playerCurrentClaimData.put(e.getPlayer().getUniqueId(), cd.getClaimID());
                             //TODO Open main claim gui
-                            //BlokClaims.guis.get("main-block-gui").open(e.getPlayer());
+                            new ClaimStoneGUI(plugin).open(e.getPlayer());
                             e.setCancelled(true);
                         }
                     } else {
                         e.setCancelled(true);
                         e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.interact-cancel"));
                     }
-                }
+
                 //is it container?
             } else if (e.getClickedBlock().getState() instanceof InventoryHolder) {
                 ClaimPermission cps = cd.getPermissionState(e.getPlayer());

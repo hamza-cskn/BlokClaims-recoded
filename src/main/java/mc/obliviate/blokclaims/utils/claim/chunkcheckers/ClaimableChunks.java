@@ -62,7 +62,7 @@ public class ClaimableChunks {
 
 
 
-                    ClaimData cd = cm.getClaimData(new ChunkID((cX + x), (cZ + z), Bukkit.getWorld(datas[0])));
+                    ClaimData cd = cm.getClaimData(new ChunkID((cX + x), (cZ + z), datas[0]));
                     //claim data is not empty
                     if (cd != null) {
                         //kontrol edilen chunk sahibi oyuncu ise.

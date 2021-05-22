@@ -5,9 +5,10 @@ import mc.obliviate.blokclaims.ChunkID;
 import java.util.Objects;
 
 public class Energy {
-    ChunkID chunkID;
-    int chunks;
-    long energy;
+
+    private final ChunkID chunkID;
+    private int chunks;
+    private long energy;
 
     public Energy(ChunkID chunkID, long energy) {
         this.chunkID = chunkID;

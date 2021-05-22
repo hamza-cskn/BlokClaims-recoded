@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
+import java.util.Objects;
+
 public class ChunkID {
 
     private final int x;
@@ -11,10 +13,10 @@ public class ChunkID {
     private final String world;
 
 
-    public ChunkID(int x, int z, World world) {
+    public ChunkID(int x, int z, String world) {
         this.x = x;
         this.z = z;
-        this.world = world.getName();
+        this.world = world;
     }
 
     public ChunkID(String claimID) {
@@ -44,5 +46,18 @@ public class ChunkID {
     @Override
     public String toString() {
         return world + "," + x + "," + z;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChunkID)) return false;
+        if (toString().equalsIgnoreCase(o.toString())) return true;
+        return Objects.equals(toString(), o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(toString());
     }
 }

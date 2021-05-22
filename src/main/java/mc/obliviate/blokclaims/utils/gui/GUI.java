@@ -1,5 +1,6 @@
 package mc.obliviate.blokclaims.utils.gui;
 
+import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.utils.gui.animation.TextAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,7 +24,7 @@ import java.util.Map;
 public abstract class GUI implements InventoryHolder {
 
     private final InventoryAPI api;
-    private final Plugin plugin;
+    private final BlokClaims plugin;
     private final Inventory inventory;
     private final TextAnimation textAnimation = new TextAnimation();
     private final Map<Integer, Hytem> items = new HashMap<>();
@@ -33,9 +34,9 @@ public abstract class GUI implements InventoryHolder {
     private boolean closed = false;
     private final int size;
 
-    public GUI(InventoryAPI api, String id, String title, int size) {
-        this.plugin = api.getPlugin();
-        this.api = api;
+    public GUI(BlokClaims plugin, String id, String title, int size) {
+        this.plugin = plugin;
+        this.api = plugin.getInventoryAPI();
         this.size = size;
         this.title = title;
         this.id = id;
@@ -207,7 +208,7 @@ public abstract class GUI implements InventoryHolder {
         return closed;
     }
 
-    public Plugin getPlugin() {
+    public BlokClaims getPlugin() {
         return plugin;
     }
 

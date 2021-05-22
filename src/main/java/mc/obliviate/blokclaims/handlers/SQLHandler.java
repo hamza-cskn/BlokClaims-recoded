@@ -62,6 +62,8 @@ public class SQLHandler {
         return null;
     }
 
+
+    //TODO Serielize methods
     public void updateClaimData(boolean async) throws SQLException {
 
         HashMap<ChunkID, ClaimData> claimsInSQL = getClaimDataFromDB(async);
@@ -69,7 +71,7 @@ public class SQLHandler {
         for (ClaimData claimData : plugin.getDataHandler().getAllClaimDataList().values()) {
 
             //Owner = UUID of Owner
-            String owner = claimData.getOwner().getUniqueId().toString();
+            String owner = claimData.getOwner().toString();
 
             //
             HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
@@ -81,7 +83,7 @@ public class SQLHandler {
                 memberList.insert(0, uuid + ",");
 
                 //PermissionStates putting
-                permissionStates.put(uuid, claimData.getPermissionState(uuid));
+                permissionStates.put(uuid, claimData.getPermissionState(member));
             }
 
             StringBuilder formattedPermissionState = new StringBuilder();
@@ -104,11 +106,15 @@ public class SQLHandler {
             }
 
             //ClaimID = mainChunk's ID
-            String claimID = claimData.toString();
+            String claimID = claimData.getClaimID().toString();
 
             //mainBlockLocation = main block of claim
             Location mainBlockLocation = claimData.getMainBlock();
-            String mainBlock = mainBlockLocation.getWorld().getName() + ";" + mainBlockLocation.getBlockX() + ";" + mainBlockLocation.getBlockY() + ";" + mainBlockLocation.getBlockZ();
+            String mainBlock =
+                    mainBlockLocation.getWorld().getName() + ";" +
+                    mainBlockLocation.getBlockX() + ";" +
+                    mainBlockLocation.getBlockY() + ";" +
+                    mainBlockLocation.getBlockZ();
 
             //name, material, world, x, y, z, yaw, pitch
 
@@ -117,7 +123,8 @@ public class SQLHandler {
             if (claimData.getHomeList() != null) {
                 for (ClaimHome home : claimData.getHomeList()) {
 
-                    String format = home.getName() +
+                    String format =
+                            home.getName() +
                             ";" + home.getIcon().toString() +
                             ";" + home.getLoc().getWorld().getName() +
                             ";" + home.getLoc().getX() +
@@ -133,7 +140,7 @@ public class SQLHandler {
             long claimTimer = claimData.getTime();
 
             //is it first save?
-            if (claimsInSQL.containsKey(claimData.getClaimID().toString())) {
+            if (claimsInSQL.containsKey(claimData.getClaimID())) {
                 //no, so update.
                 Debug.log("Updating new row for: " + claimData.getClaimID(), true);
                 statement.executeUpdate("UPDATE claims SET" +
@@ -164,8 +171,9 @@ public class SQLHandler {
         }
     }
 
-    private OfflinePlayer deserializeOwner(String rawOwner) {
-        return stringUUIDtoOfflinePlayer(rawOwner);
+    private UUID deserializeOwner(String rawOwner) {
+        return UUID.fromString(rawOwner);
+
     }
 
     private List<ChunkID> deserializeChunkList(String stringChunkList) {
@@ -176,21 +184,21 @@ public class SQLHandler {
         return chunkList;
     }
 
-    private List<OfflinePlayer> deserializeMemberList(String stringMemberList) {
-        List<OfflinePlayer> memberList = new ArrayList<>();
+    private List<UUID> deserializeMemberList(String stringMemberList) {
+        List<UUID> memberList = new ArrayList<>();
         for (String memberUUID : stringMemberList.split(",")) {
-            memberList.add(stringUUIDtoOfflinePlayer(memberUUID));
+            memberList.add(UUID.fromString(memberUUID));
         }
         return memberList;
     }
 
-    private HashMap<String, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
-        HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
+    private HashMap<UUID, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
+        HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
         for (String data : stringPermission.split(",")) {
             String[] datas = data.split(";");
             if (datas[0] == null || datas[0].equalsIgnoreCase("")) continue;
             List<String> permissions = new ArrayList<>(Arrays.asList(datas).subList(1, datas.length));
-            permissionStates.put(datas[0], new ClaimPermission(plugin, datas[0], id, permissions));
+            permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
         }
         return permissionStates;
     }
@@ -271,10 +279,10 @@ public class SQLHandler {
             ChunkID id = new ChunkID(rs.getString("claimID"));
             int energy = rs.getInt("energy");
 
-            OfflinePlayer owner = deserializeOwner(rs.getString("owner"));
+            UUID owner = deserializeOwner(rs.getString("owner"));
             List<ChunkID> chunkList = deserializeChunkList(rs.getString("chunkList"));
-            List<OfflinePlayer> memberList = deserializeMemberList(rs.getString("memberList")); //TODO Use UUID
-            HashMap<String, ClaimPermission> permissionStates = deserializePermissions(rs.getString("permissions"), id);
+            List<UUID> memberList = deserializeMemberList(rs.getString("memberList")); //TODO Use UUID
+            HashMap<UUID, ClaimPermission> permissionStates = deserializePermissions(rs.getString("permissions"), id);
             Location mainBlock = deserializeMainBlock(rs.getString("mainBlock"));
             List<ClaimHome> homeList = deserializeClaimHome(rs.getString("homeList"));
 

@@ -2,6 +2,7 @@ package mc.obliviate.blokclaims.handlers;
 
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.utils.debug.Debug;
+import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -37,6 +38,7 @@ public class ConfigHandler {
         HashMap<String, String> dcn = new HashMap<>();
 
         dcn.put("prefix", "&8[&aBlok Claims&8] ");
+        dcn.put("you-can-not-afford", "&cBu işlemi gerçekleştirmeniz için {need} akçeye ihtiyacınız var.");
         dcn.put("you-can-not-do-this", "&cBu işlemi gerçekleştiremezsiniz.");
         dcn.put("you-can-it-in-this-world", "&cBu dünyada bu işlemi gerçekleştiremezsiniz.");
         dcn.put("you-dont-have-enough-permission", "&cBu işlemi yalnızca yetkililer yapabilir.");
@@ -72,8 +74,10 @@ public class ConfigHandler {
         dcn.put("home.teleport-cancelled.title", "&cIptal Edildi");
         dcn.put("home.teleport-cancelled.subtitle", "&7Işınlanmanız iptal edildi.");
         dcn.put("home.list-name", "&d{home}");
-        dcn.put("usage.addhome", "&aDoğru kullanım: &7/blokclaims addhome <ev adı>");
+        dcn.put("usage.sethome", "&aDoğru kullanım: &7/blokclaims sethome <ev adı>");
         dcn.put("usage.invite", "&aDoğru kullanım: &7/blokclaims invite <oyuncu adı>");
+        dcn.put("usage.kick", "&aDoğru kullanım: &7/blokclaims kick <oyuncu adı>");
+        dcn.put("usage.no-argument-found", "&cNe yazık ki '{argument}' adında bir argüman bulunamadı.");
         dcn.put("permissions.delete-member.name", "&cÜyeyi bölgeden çıkar");
         dcn.put("invite.target-has-invited", "&d{target}&7 adlı oyuncuyu &a{claimID} &7Claim bölgenize davet ettiniz. Eğer davete {expire_time}sn içerisinde cevap verilmezse otomatik olarak reddedilecek.");
         dcn.put("invite.you-invited", "&d{inviter}&7 adlı oyuncu sizi Claim bölgesine davet etti. Eğer davete {expire_time}sn içerisinde cevap verilmezse otomatik olarak reddedilecek.\n&aKabul etmek&7 için &e/claim katıl&7 komutunu kullanın.");
@@ -83,6 +87,8 @@ public class ConfigHandler {
         dcn.put("invite.list-format", "&8- &7{target} {inviter} &e{time_left}");
         dcn.put("invite.list-no-invite", "&cHiç davet bulunamadı.");
         dcn.put("invite.no-invite-found", "&cHiç davet bulunamadı.");
+        dcn.put("gui-elements.claim-stone-gui.title", "<#dark_blue>Claim Taşı");
+        dcn.put("gui-elements.map-gui.title", "<#dark_blue>Harita");
 
 
 
@@ -149,6 +155,8 @@ public class ConfigHandler {
         //String name = Main.messages.getString("permissions." + permission + ".name", permission);
         //List<String> lore = Main.messages.getStringList("permissions." + permission + ".description");
 
+        //Register prefix
+        new Message();
         save(messages, messageFile);
 
 
@@ -165,6 +173,7 @@ public class ConfigHandler {
     public void loadDefaultConfig() {
         HashMap<String, Object> defaultConfigNodes = new HashMap<>();
 
+        defaultConfigNodes.put("prices.create-claim", 10000);
         defaultConfigNodes.put("first-claim-time", 43200);
         defaultConfigNodes.put("backup-interval", 300);
         defaultConfigNodes.put("default-home-teleport-delay", 3);
@@ -200,6 +209,14 @@ public class ConfigHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public String getStr(String key) {
+        return config.getString(key);
+    }
+    public int getInt(String key) {
+        return config.getInt(key);
     }
 
     public YamlConfiguration getConfig() {

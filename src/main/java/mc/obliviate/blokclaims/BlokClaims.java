@@ -1,9 +1,7 @@
 package mc.obliviate.blokclaims;
 
-import mc.obliviate.blokclaims.handlers.ConfigHandler;
-import mc.obliviate.blokclaims.handlers.DataHandler;
-import mc.obliviate.blokclaims.handlers.HologramHandler;
-import mc.obliviate.blokclaims.handlers.SQLHandler;
+import mc.obliviate.blokclaims.commands.PlayerCommands;
+import mc.obliviate.blokclaims.handlers.*;
 import mc.obliviate.blokclaims.listeners.*;
 import mc.obliviate.blokclaims.utils.SignUtils;
 import mc.obliviate.blokclaims.utils.chunkborder.ChunkBorder;
@@ -11,11 +9,13 @@ import mc.obliviate.blokclaims.utils.claim.ClaimCore;
 import mc.obliviate.blokclaims.utils.gui.InventoryAPI;
 import mc.obliviate.blokclaims.utils.teleport.TeleportUtil;
 import mc.obliviate.blokclaims.utils.timer.Timer;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -32,6 +32,8 @@ public class BlokClaims extends JavaPlugin {
     private ClaimCore claimCore;
     private ChunkBorder chunkBorder;
     private TeleportUtil teleportUtil;
+    private Economy economy;
+    private EconomyHandler economyHandler;
 
 
     private static final List<String> worldList = new ArrayList<>();
@@ -64,10 +66,20 @@ public class BlokClaims extends JavaPlugin {
             }
         };
 
-        registerListeners();
         setupCommands();
         setupHandlers();
         sqlHandler.createTableIfNotExits();
+        registerListeners();
+
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            Bukkit.getLogger().warning("*** Vault bulunamadı! ***");
+            Bukkit.getLogger().warning("*** BlokClaims ekonomiyi kullanamayacak. ***");
+        } else {
+            if (!setupEconomy()) {
+                Bukkit.getLogger().severe("Vault kurulumu esnasında bir sorun oluştu!");
+            }
+        }
+
 
         new Timer(this);
 
@@ -85,6 +97,7 @@ public class BlokClaims extends JavaPlugin {
 
 
     //TODO RECHECK ALL LISTENERS
+    //TODO USE ENUM LIST
     private void registerListeners() {
 
         PluginManager pm = Bukkit.getPluginManager();
@@ -109,6 +122,16 @@ public class BlokClaims extends JavaPlugin {
     }
 
     private void setupCommands() {
+        getCommand("claim").setExecutor(new PlayerCommands(this));
+    }
+
+    private boolean setupEconomy() {
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        economy = rsp.getProvider();
+        return economy != null;
     }
 
 
@@ -116,12 +139,13 @@ public class BlokClaims extends JavaPlugin {
         inventoryAPI = new InventoryAPI(this);
         signUtils = new SignUtils(this);
         configHandler = new ConfigHandler(this);
-        claimCore = new ClaimCore(this);
         hologramHandler = new HologramHandler();
         chunkBorder = new ChunkBorder(this);
         dataHandler = new DataHandler();
+        claimCore = new ClaimCore(this);
         teleportUtil = new TeleportUtil(this);
         sqlHandler = new SQLHandler(this);
+        economyHandler = new EconomyHandler(this);
 
     }
 
@@ -163,5 +187,13 @@ public class BlokClaims extends JavaPlugin {
 
     public TeleportUtil getTeleportUtil() {
         return teleportUtil;
+    }
+
+    public Economy getEconomy() {
+        return economy;
+    }
+
+    public EconomyHandler getEconomyHandler() {
+        return economyHandler;
     }
 }

@@ -12,16 +12,16 @@ import java.util.UUID;
 public class ClaimPermission {
 
     private final BlokClaims plugin;
-    String uuid;
-    ChunkID claimID;
-    List<String> permissions = new ArrayList<>();
+    private final UUID uuid;
+    private final ChunkID claimID;
+    private final List<String> permissions = new ArrayList<>();
 
-    public ClaimPermission(BlokClaims plugin, String uuid, ChunkID claimID, List<String> permissions) {
+    public ClaimPermission(BlokClaims plugin, UUID uuid, ChunkID claimID, List<String> permissions) {
         this.plugin = plugin;
         this.uuid = uuid;
         this.claimID = claimID;
         if (permissions != null) {
-            this.permissions = permissions;
+            this.permissions.addAll(permissions);
         }
     }
 
@@ -46,7 +46,7 @@ public class ClaimPermission {
     }
 
     public OfflinePlayer getPlayer() {
-        return Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+        return Bukkit.getOfflinePlayer(uuid);
     }
 
     private boolean isValidPermission(String permission) {

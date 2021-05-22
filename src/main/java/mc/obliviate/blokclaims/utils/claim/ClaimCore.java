@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static mc.obliviate.blokclaims.BlokClaims.useHolographicDisplay;
 import static mc.obliviate.blokclaims.utils.claim.ClaimUtils.isClaimWorld;
@@ -31,20 +32,20 @@ public class ClaimCore {
 
     // GET CLAIM_DATA
     public ClaimData getClaimData(Location location) {
-        return getClaimData(ClaimUtils.getChunkID(location.getChunk()).toString());
+        return getClaimData(ClaimUtils.getChunkID(location.getChunk()));
     }
 
     public ClaimData getClaimData(String chunkStringID) {
-        return dataHandler.getAllClaimDataList().get(dataHandler.getAllChunkList().get(new ChunkID(chunkStringID)));
+        return getClaimData(new ChunkID(chunkStringID));
     }
 
     public ClaimData getClaimData(ChunkID chunk) {
-        return dataHandler.getAllClaimDataList().get(
-                dataHandler.getAllChunkList().get(chunk)
-        );
+        ChunkID chunkID = dataHandler.getAllChunkList().get(chunk);
+        if (chunkID == null) return null;
+        return dataHandler.getAllClaimDataList().get(chunkID);
     }
     public boolean isInOwnClaim(Player p) {
-        return p != null && getClaimData(p.getLocation()).getOwner().equals(p);
+        return p != null && getClaimData(p.getLocation()).getOwner().equals(p.getUniqueId());
     }
 
 
@@ -58,16 +59,18 @@ public class ClaimCore {
             if (isClaimWorld(mainBlock.getWorld())) {
                 ChunkID mainChunk = ClaimUtils.getChunkID(mainBlock.getChunk());
 
-                List<OfflinePlayer> memberList = new ArrayList<>();
+                List<UUID> memberList = new ArrayList<>();
                 List<ChunkID> chunkList = new ArrayList<>();
-                memberList.add(owner);
+                memberList.add(owner.getUniqueId());
                 ChunkID chunkID = ClaimUtils.getChunkID(mainBlock.getChunk());
+                Bukkit.broadcastMessage(chunkID + "");
                 dataHandler.getAllChunkList().put(chunkID, chunkID);
+                Bukkit.broadcastMessage(dataHandler.getAllChunkList() + "");
                 chunkList.add(chunkID);
 
 
                 int energy = plugin.getConfigHandler().getConfig().getInt("first-claim-time", 43200);
-                data = new ClaimData(plugin, owner, memberList, chunkList, mainBlock, chunkID, energy, null, null);
+                data = new ClaimData(plugin, owner.getUniqueId(), memberList, chunkList, mainBlock, chunkID, energy, null, null);
                 dataHandler.getAllClaimDataList().put(mainChunk, data);
 
 

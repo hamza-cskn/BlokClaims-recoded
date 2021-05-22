@@ -6,5 +6,5 @@ authors: [ Mr_Obliviate, HakanKargın ]
 description: Custom claim management plugin for Blok Dünyası!
 softdepend: [ Vault, HolographicDisplays ]
 commands:
-  blokClaim:
+  claim:
     aliases: [ blokclaim, blokclaims, claim ]
