@@ -53,97 +53,46 @@ public class SQLHandler {
         return 0;
     }
 
-    private OfflinePlayer stringUUIDtoOfflinePlayer(String ownerUUID) {
-        try {
-            return Bukkit.getOfflinePlayer(UUID.fromString(ownerUUID));
-        } catch (IllegalArgumentException e) {
-            Debug.log("INVALID UUID: " + ownerUUID);
-        }
-        return null;
-    }
 
-
-    //TODO Serielize methods
     public void updateClaimData(boolean async) throws SQLException {
 
+
+        //int createdRowAmount = 0;
+        //int updatedRowAmount = 0;
         HashMap<ChunkID, ClaimData> claimsInSQL = getClaimDataFromDB(async);
-
         for (ClaimData claimData : plugin.getDataHandler().getAllClaimDataList().values()) {
-
             //Owner = UUID of Owner
-            String owner = claimData.getOwner().toString();
+            String owner = serializeOwner(claimData.getOwner());
 
-            //
-            HashMap<String, ClaimPermission> permissionStates = new HashMap<>();
+            String chunkList = serializeChunkList(claimData.getChunkList());
 
-            //MemberList = Member1, Member2, Member3...
-            StringBuilder memberList = new StringBuilder();
-            for (UUID member : claimData.getMemberList()) {
-                String uuid = member.toString();
-                memberList.insert(0, uuid + ",");
-
-                //PermissionStates putting
-                permissionStates.put(uuid, claimData.getPermissionState(member));
+            HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
+            for (UUID uuid : claimData.getMemberList()) {
+                permissionStates.put(uuid, claimData.getPermissionState(uuid));
             }
+            String formattedPermissionState = serializePermissions(permissionStates);
 
-            StringBuilder formattedPermissionState = new StringBuilder();
-            //Format Permission States
-            for (String key : permissionStates.keySet()) {
-                StringBuilder format = new StringBuilder();
-                ClaimPermission cps = permissionStates.get(key);
-                if (cps == null) continue;
-                for (String permission : cps.getPermissions()) {
-                    format.insert(0, permission + ";");
-                }
-                formattedPermissionState.insert(0, key + ";" + format + ",");
-            }
-
-            //ChunkList = world1;x1;y1, world2;x2;y2
-            StringBuilder chunkList = new StringBuilder();
-            for (ChunkID chunkid : claimData.getChunkList()) {
-                String formattedChunk = chunkid.toString().replace(",", ";");
-                chunkList.insert(0, formattedChunk + ",");
-            }
+            String memberList = serializeMemberList(claimData.getMemberList());
 
             //ClaimID = mainChunk's ID
             String claimID = claimData.getClaimID().toString();
 
             //mainBlockLocation = main block of claim
-            Location mainBlockLocation = claimData.getMainBlock();
-            String mainBlock =
-                    mainBlockLocation.getWorld().getName() + ";" +
-                    mainBlockLocation.getBlockX() + ";" +
-                    mainBlockLocation.getBlockY() + ";" +
-                    mainBlockLocation.getBlockZ();
+            String mainBlock = serializeMainBlock(claimData.getMainBlock());
 
             //name, material, world, x, y, z, yaw, pitch
 
+            String formattedHomeList = serializeClaimHomeList(claimData.getHomeList());
 
-            StringBuilder formattedHomeList = new StringBuilder();
-            if (claimData.getHomeList() != null) {
-                for (ClaimHome home : claimData.getHomeList()) {
+            long claimTimer = claimData.getEnergy().getAmount();
 
-                    String format =
-                            home.getName() +
-                            ";" + home.getIcon().toString() +
-                            ";" + home.getLoc().getWorld().getName() +
-                            ";" + home.getLoc().getX() +
-                            ";" + home.getLoc().getY() +
-                            ";" + home.getLoc().getZ() +
-                            ";" + home.getLoc().getYaw() +
-                            ";" + home.getLoc().getPitch();
 
-                    formattedHomeList.insert(0, format + ",");
-                }
-            }
-
-            long claimTimer = claimData.getTime();
-
+            String sql;
             //is it first save?
             if (claimsInSQL.containsKey(claimData.getClaimID())) {
                 //no, so update.
                 Debug.log("Updating new row for: " + claimData.getClaimID(), true);
-                statement.executeUpdate("UPDATE claims SET" +
+                sql = "UPDATE claims SET" +
                         " owner = '" + owner +
                         "', memberList = '" + memberList +
                         "', chunkList = '" + chunkList +
@@ -152,11 +101,12 @@ public class SQLHandler {
                         "', permissions = '" + formattedPermissionState +
                         "', homeList = '" + formattedHomeList +
                         "' WHERE claimID = '" + claimID +
-                        "'");
+                        "'";
+                //updatedRowAmount++;
             } else {
                 //yes, so add.
                 Debug.log("Creating new row for: " + claimData.getClaimID(), true);
-                statement.executeUpdate("INSERT INTO claims VALUES('" + owner +
+                sql = "INSERT INTO claims VALUES('" + owner +
                         "', '" + memberList +
                         "', '" + chunkList +
                         "', '" + claimID +
@@ -164,68 +114,23 @@ public class SQLHandler {
                         "', '" + mainBlock +
                         "', '" + formattedPermissionState +
                         "', '" + formattedHomeList +
-                        "')");
+                        "')";
+                //createdRowAmount++;
             }
-
-
+            statement.executeUpdate(sql);
+            //Bukkit.broadcastMessage(sql);
         }
-    }
+        /*
+        Bukkit.getLogger().info(Message.color("&8&m------------&r <#red>[BlokClaims - Database Task Result] &8&m------------"));
+        Bukkit.getLogger().info(Message.color("<#orange> data amount: <#yellow>" + claimsInSQL.size()));
+        Bukkit.getLogger().info(Message.color("<#orange> is async:  <#yellow>" + !Bukkit.isPrimaryThread()));
+        Bukkit.getLogger().info(Message.color("<#orange> created row:  <#yellow>" + createdRowAmount ));
+        Bukkit.getLogger().info(Message.color("<#orange> updated row:  <#yellow>" + updatedRowAmount));
+        Bukkit.getLogger().info(Message.color("<#green> SQL database update task has completed."));
+        Bukkit.getLogger().info(Message.color("&8&m------------&r <#red>[BlokClaims - Database Task Result] &8&m------------"));
+         */
 
-    private UUID deserializeOwner(String rawOwner) {
-        return UUID.fromString(rawOwner);
 
-    }
-
-    private List<ChunkID> deserializeChunkList(String stringChunkList) {
-        List<ChunkID> chunkList = new ArrayList<>();
-        for (String rawChunk : stringChunkList.split(",")) {
-            chunkList.add(new ChunkID(rawChunk.replace(";", ",")));
-        }
-        return chunkList;
-    }
-
-    private List<UUID> deserializeMemberList(String stringMemberList) {
-        List<UUID> memberList = new ArrayList<>();
-        for (String memberUUID : stringMemberList.split(",")) {
-            memberList.add(UUID.fromString(memberUUID));
-        }
-        return memberList;
-    }
-
-    private HashMap<UUID, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
-        HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
-        for (String data : stringPermission.split(",")) {
-            String[] datas = data.split(";");
-            if (datas[0] == null || datas[0].equalsIgnoreCase("")) continue;
-            List<String> permissions = new ArrayList<>(Arrays.asList(datas).subList(1, datas.length));
-            permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
-        }
-        return permissionStates;
-    }
-
-    private Location deserializeMainBlock(String mainBlock) {
-        String[] mainBlockData = mainBlock.split(";");
-        return new Location(Bukkit.getWorld(mainBlockData[0]), stringToInt(mainBlockData[1]), stringToInt(mainBlockData[2]), stringToInt(mainBlockData[3]));
-
-    }
-
-    private List<ClaimHome> deserializeClaimHome(String home) {
-        List<ClaimHome> homeList = new ArrayList<>();
-        for (String rawHome : home.split(",")) {
-            String[] split = rawHome.split(";");
-            if (split.length != 8) {
-                if (split.length != 1) {
-                    Bukkit.getLogger().warning("A Home location couldn't resolved: " + Objects.requireNonNull(split[0]));
-                }
-                continue;
-            }
-            //name, material, world, x, y, z, yaw, pitch
-            Location hloc = new Location(Bukkit.getWorld(split[2]), Double.parseDouble(split[3]), Double.parseDouble(split[4]), Double.parseDouble(split[5]), Float.parseFloat(split[6]), Float.parseFloat(split[7]));
-
-            //Location hloc = new Location(Bukkit.getWorld("world"),1,2,3);
-            homeList.add(new ClaimHome(hloc, Material.getMaterial(split[1]), split[0]));
-        }
-        return homeList;
     }
 
     public void createTableIfNotExits() {
@@ -243,17 +148,30 @@ public class SQLHandler {
                     ")");
             //statement.executeUpdate("CREATE TABLE IF NOT EXISTS logs (" + "logID INTEGER, " + "logType TEXT, " + "logDate TEXT, " + "logData TEXT " + ")");
 
-            plugin.getDataHandler().setAllClaimDataList(getClaimDataFromDB(false));
-            for (ClaimData cd : plugin.getDataHandler().getAllClaimDataList().values()) {
-                for (ChunkID chunkID : cd.getChunkList()) {
-                    plugin.getDataHandler().getAllChunkList().put(cd.getClaimID(), chunkID);
-                }
-            }
-            Debug.log("Claim data listesi: " + plugin.getDataHandler().getAllClaimDataList().size());
+            putClaimDatas();
+            putChunkDatas();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void putClaimDatas() {
+        try {
+            plugin.getDataHandler().setAllClaimDataList(getClaimDataFromDB(false));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void putChunkDatas() {
+        for (ClaimData cd : plugin.getDataHandler().getAllClaimDataList().values()) {
+            for (ChunkID chunkID : cd.getChunkList()) {
+                plugin.getDataHandler().getAllChunkList().put(chunkID, cd.getClaimID());
+            }
+        }
+        Debug.log("Claim data listesi: " + plugin.getDataHandler().getAllClaimDataList().size());
     }
 
     public HashMap<ChunkID, ClaimData> getClaimDataFromDB(boolean async) throws SQLException {
@@ -281,10 +199,11 @@ public class SQLHandler {
 
             UUID owner = deserializeOwner(rs.getString("owner"));
             List<ChunkID> chunkList = deserializeChunkList(rs.getString("chunkList"));
-            List<UUID> memberList = deserializeMemberList(rs.getString("memberList")); //TODO Use UUID
+            Debug.log(chunkList + "", false, Debug.DebugType.ORANGE);
+            List<UUID> memberList = deserializeMemberList(rs.getString("memberList"));
             HashMap<UUID, ClaimPermission> permissionStates = deserializePermissions(rs.getString("permissions"), id);
             Location mainBlock = deserializeMainBlock(rs.getString("mainBlock"));
-            List<ClaimHome> homeList = deserializeClaimHome(rs.getString("homeList"));
+            List<ClaimHome> homeList = deserializeClaimHomeList(rs.getString("homeList"));
 
 
             final ClaimData[] cd = new ClaimData[1];
@@ -308,7 +227,6 @@ public class SQLHandler {
 
     }
 
-
     public boolean deleteClaimData(ClaimData cd) {
 
         Debug.log("Deleting new row for: " + cd.getClaimID().toString());
@@ -323,16 +241,16 @@ public class SQLHandler {
         return false;
     }
 
-    public void saveSQLDatas(boolean async) {
-        if (async) Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveSQLDatas_operation(true));
-        else saveSQLDatas_operation(false);
+    public void save(boolean async) {
+        if (async) Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveSQLDatabase(true));
+        else saveSQLDatabase(false);
 
     }
-    private void saveSQLDatas_operation(boolean async) {
+
+    private void saveSQLDatabase(boolean async) {
         Bukkit.getLogger().info("SQL database backup started (ASYNC: " + async + ")");
         if (connection != null && statement != null) {
             long aaa = System.nanoTime();
-
             try {
                 updateClaimData(async);
             } catch (SQLException e) {
@@ -347,6 +265,176 @@ public class SQLHandler {
 
     }
 
+    private OfflinePlayer stringUUIDtoOfflinePlayer(String ownerUUID) {
+        try {
+            return Bukkit.getOfflinePlayer(UUID.fromString(ownerUUID));
+        } catch (IllegalArgumentException e) {
+            Bukkit.getLogger().severe("[BlokClaims - SQL Operation] INVALID UUID: " + ownerUUID);
+        }
+        return null;
+    }
+
+    /**
+     * SERIALIZE & DESERIALIZE METHODS
+     */
+
+    private UUID deserializeOwner(String rawOwner) {
+        return UUID.fromString(rawOwner);
+    }
+
+    private String serializeOwner(UUID owner) {
+        return owner.toString();
+    }
+
+
+    private <T> void reverseList(List<T> list) {
+        // base case: the list is empty, or only one element is left
+        if (list == null || list.size() <= 1) {
+            return;
+        }
+
+        // remove the first element
+        T value = list.remove(0);
+
+        // recur for remaining items
+        reverseList(list);
+
+        // insert the top element back after recurse for remaining items
+        list.add(value);
+    }
+
+    private List<ChunkID> deserializeChunkList(String stringChunkList) {
+        /**
+         * flat;7;0,
+         * flat;8;0,
+         * flat;9;0,
+         * flat;9;1,
+         **/
+        List<ChunkID> chunkList = new ArrayList<>();
+        for (String rawChunk : stringChunkList.split(",")) {
+            ChunkID id = new ChunkID(rawChunk.replace(";", ","));
+            chunkList.add(id);
+        }
+        reverseList(chunkList);
+        return chunkList;
+    }
+
+    private String serializeChunkList(List<ChunkID> chunkIdlist) {
+        //ChunkList = world1;x1;y1, world2;x2;y2
+        StringBuilder chunkList = new StringBuilder();
+        for (ChunkID chunkid : chunkIdlist) {
+            String formattedChunk = chunkid.toString().replace(",", ";");
+            chunkList.insert(0, formattedChunk + ",");
+        }
+        return chunkList.toString();
+    }
+
+    private List<UUID> deserializeMemberList(String stringMemberList) {
+        List<UUID> memberList = new ArrayList<>();
+        for (String memberUUID : stringMemberList.split(",")) {
+            memberList.add(UUID.fromString(memberUUID));
+        }
+        return memberList;
+    }
+
+    private String serializeMemberList(List<UUID> memberList) {
+        //
+
+        //MemberList = Member1, Member2, Member3...
+        StringBuilder result = new StringBuilder();
+        for (UUID member : memberList) {
+            String uuid = member.toString();
+            result.insert(0, uuid + ",");
+
+            //PermissionStates putting
+
+        }
+        return result.toString();
+
+
+    }
+
+    private HashMap<UUID, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
+        HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
+        for (String data : stringPermission.split(",")) {
+            String[] datas = data.split(";");
+            if (datas[0] == null || datas[0].equalsIgnoreCase("")) continue;
+            List<String> permissions = new ArrayList<>(Arrays.asList(datas).subList(1, datas.length));
+            permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
+        }
+        return permissionStates;
+    }
+
+    private String serializePermissions(HashMap<UUID, ClaimPermission> permissionStates) {
+
+        StringBuilder formattedPermissionState = new StringBuilder();
+        //Format Permission States
+        for (UUID key : permissionStates.keySet()) {
+            StringBuilder format = new StringBuilder();
+            ClaimPermission cps = permissionStates.get(key);
+            if (cps == null) continue;
+            for (String permission : cps.getPermissions()) {
+                format.insert(0, permission + ";");
+            }
+            formattedPermissionState.insert(0, key + ";" + format + ",");
+        }
+
+        return formattedPermissionState.toString();
+
+    }
+
+    private Location deserializeMainBlock(String mainBlock) {
+        String[] mainBlockData = mainBlock.split(";");
+        return new Location(Bukkit.getWorld(mainBlockData[0]), stringToInt(mainBlockData[1]), stringToInt(mainBlockData[2]), stringToInt(mainBlockData[3]));
+
+    }
+
+    private String serializeMainBlock(Location mainBlockLocation) {
+        return mainBlockLocation.getWorld().getName() + ";" +
+                mainBlockLocation.getBlockX() + ";" +
+                mainBlockLocation.getBlockY() + ";" +
+                mainBlockLocation.getBlockZ();
+    }
+
+    private List<ClaimHome> deserializeClaimHomeList(String home) {
+        List<ClaimHome> homeList = new ArrayList<>();
+        for (String rawHome : home.split(",")) {
+            String[] split = rawHome.split(";");
+            if (split.length != 8) {
+                if (split.length != 1) {
+                    Bukkit.getLogger().warning("A Home location couldn't resolved: " + Objects.requireNonNull(split[0]));
+                }
+                continue;
+            }
+            //name, material, world, x, y, z, yaw, pitch
+            Location hloc = new Location(Bukkit.getWorld(split[2]), Double.parseDouble(split[3]), Double.parseDouble(split[4]), Double.parseDouble(split[5]), Float.parseFloat(split[6]), Float.parseFloat(split[7]));
+
+            //Location hloc = new Location(Bukkit.getWorld("world"),1,2,3);
+            homeList.add(new ClaimHome(hloc, Material.getMaterial(split[1]), split[0]));
+        }
+        return homeList;
+    }
+
+    private String serializeClaimHomeList(List<ClaimHome> homeList) {
+        StringBuilder formattedHomeList = new StringBuilder();
+        if (homeList != null) {
+            for (ClaimHome home : homeList) {
+                String format =
+                        home.getName() +
+                                ";" + home.getIcon().toString() +
+                                ";" + home.getLoc().getWorld().getName() +
+                                ";" + home.getLoc().getX() +
+                                ";" + home.getLoc().getY() +
+                                ";" + home.getLoc().getZ() +
+                                ";" + home.getLoc().getYaw() +
+                                ";" + home.getLoc().getPitch();
+
+                formattedHomeList.insert(0, format + ",");
+            }
+        }
+        return formattedHomeList.toString();
+
+    }
 
 
     //ALWAYS ASYNC

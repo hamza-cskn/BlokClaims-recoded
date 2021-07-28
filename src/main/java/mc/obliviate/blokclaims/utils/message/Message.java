@@ -3,7 +3,6 @@ package mc.obliviate.blokclaims.utils.message;
 import mc.obliviate.blokclaims.handlers.ConfigHandler;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.awt.*;

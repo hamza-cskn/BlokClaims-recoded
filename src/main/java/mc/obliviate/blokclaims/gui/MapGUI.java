@@ -68,6 +68,8 @@ public class MapGUI extends GUI {
         }
 
 
+
+
         //Navigation Buttons
         long cooldown;
 
@@ -117,7 +119,7 @@ public class MapGUI extends GUI {
         } else {
             mat = Material.GRAY_STAINED_GLASS_PANE;
         }
-
+        Debug.log(chunkStringID + " : " + (cd == null));
         if (cd != null) {
             if (cd.getMemberList().contains(player.getUniqueId())) {
                 if (cd.getClaimID().toString().equalsIgnoreCase(chunkStringID)) {
@@ -134,14 +136,16 @@ public class MapGUI extends GUI {
                 //TODO USE NICKNAME INSTEAD UUID
                 lore.add("§7Sahip: §e" + cd.getOwner());
                 lore.add("§7Üye sayısı: §e" + cd.getMemberList().size());
-                new Hytem(new ItemStack(Material.RED_STAINED_GLASS_PANE)).setName(Message.color("<#red>Alınmış Claim")).setLore(lore);
+                return new Hytem(new ItemStack(Material.RED_STAINED_GLASS_PANE)).setName(Message.color("<#red>Alınmış Claim")).setLore(lore);
             }
         }
 
-        return new Hytem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), event -> {
+
+        return new Hytem(new ItemStack(mat), event -> {
             if (event.getClick().isLeftClick()) claimChunk(mainChunkID, chunkID);
             else if (event.getClick().isRightClick()) getPlugin().getChunkBorder().sendChunkPacket(player, chunkID);
         }).setName(Message.color("<#gray>Sahipsiz Claim")).setLore(lore);
+
 
     }
 
@@ -150,12 +154,12 @@ public class MapGUI extends GUI {
             player.sendMessage(Message.color("<#red>Bir hata oluştu!"));
             return;
         }
-        Debug.log(mainChunkID + " mainChunkID");
-        Debug.log(chunkID + " chunkStringID");
+        Debug.log(mainChunkID + " mainChunkID", false, Debug.DebugType.GREEN);
+        Debug.log(chunkID + " chunkStringID", false, Debug.DebugType.GREEN);
 
 
-        ClaimableChunks claimableChunk = new ClaimableChunks(getPlugin(), mainChunkID, chunkID.toString());
-        if (claimableChunk.isClaimable()) {
+        ClaimableChunks claimableChunks = new ClaimableChunks(getPlugin(), mainChunkID, chunkID.toString());
+        if (claimableChunks.isClaimable()) {
             ClaimData cdata = getPlugin().getClaimCore().getClaimData(new ChunkID(mainChunkID));
             if (cdata != null) {
                 cdata.addChunk(chunkID);

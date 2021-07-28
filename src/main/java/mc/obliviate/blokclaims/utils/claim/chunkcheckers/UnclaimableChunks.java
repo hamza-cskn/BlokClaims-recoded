@@ -2,7 +2,7 @@ package mc.obliviate.blokclaims.utils.claim.chunkcheckers;
 
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
-import mc.obliviate.blokclaims.utils.claim.ClaimCore;
+import mc.obliviate.blokclaims.utils.claim.ClaimManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +12,10 @@ public class UnclaimableChunks {
     private final ChunkID id;
     private final ClaimData cd;
     private final List<ChunkID> confirmedChunks = new ArrayList<>();
-    private final ClaimCore cm;
+    private final ClaimManager cm;
     private boolean connected = false;
 
-    public UnclaimableChunks(ClaimCore cm, ClaimData cd, ChunkID id) {
+    public UnclaimableChunks(ClaimManager cm, ClaimData cd, ChunkID id) {
         this.cd = cd;
         this.id = id;
         this.cm = cm;

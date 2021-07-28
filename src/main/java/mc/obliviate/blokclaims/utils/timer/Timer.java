@@ -36,7 +36,7 @@ public class Timer {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getSqlHandler().saveSQLDatas(true);
+                plugin.getSqlHandler().save(true);
 
             }
         }.runTaskTimer(plugin, 20, period * 20L);

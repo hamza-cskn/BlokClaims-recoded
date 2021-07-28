@@ -6,6 +6,7 @@ import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.gui.ClaimStoneGUI;
+import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,28 +29,35 @@ public class InteractListener extends ListenerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteractEvent(PlayerInteractEvent e) {
+        Debug.log("PlayerInteractEvent");
         if (!ClaimUtils.isClaimWorld(e.getPlayer().getWorld())) return;
-
-
+        Debug.log("-3", true, Debug.DebugType.LIME);
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            Debug.log("-2", true, Debug.DebugType.LIME);
             if (!Objects.equals(e.getHand(), EquipmentSlot.HAND)) return;
+            Debug.log("-1", true, Debug.DebugType.LIME);
             if (e.getClickedBlock() == null) return;
-            ClaimData cd = cm.getClaimData(ClaimUtils.getChunkID(e.getClickedBlock().getLocation()));
+            Debug.log("0: " + ClaimUtils.getChunkID(e.getClickedBlock().getLocation()), true, Debug.DebugType.LIME);
+            ClaimData cd = cm.getClaimData(e.getClickedBlock().getLocation());
             if (cd == null) return;
             Material type = e.getClickedBlock().getType();
+            Debug.log("1", true, Debug.DebugType.LIME);
             if (type.equals(Material.BEDROCK)) {
-                    if (cd.getMemberList().contains(e.getPlayer().getUniqueId())) {
-                        if (cd.getMainBlock().equals(e.getClickedBlock().getLocation())) {
-                            //TODO Player current claim data
-                            //BlokClaims.playerCurrentClaimData.put(e.getPlayer().getUniqueId(), cd.getClaimID());
-                            //TODO Open main claim gui
-                            new ClaimStoneGUI(plugin).open(e.getPlayer());
-                            e.setCancelled(true);
-                        }
-                    } else {
+                Debug.log("2", true, Debug.DebugType.LIME);
+                if (cd.getMemberList().contains(e.getPlayer().getUniqueId())) {
+                    Debug.log("3", true, Debug.DebugType.LIME);
+                    if (cd.getMainBlock().equals(e.getClickedBlock().getLocation())) {
+                        Debug.log("4", true, Debug.DebugType.LIME);
+                        //TODO Player current claim data
+                        //BlokClaims.playerCurrentClaimData.put(e.getPlayer().getUniqueId(), cd.getClaimID());
+                        //TODO Open main claim gui
+                        new ClaimStoneGUI(plugin).open(e.getPlayer());
                         e.setCancelled(true);
-                        e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.interact-cancel"));
                     }
+                } else {
+                    e.setCancelled(true);
+                    e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.interact-cancel"));
+                }
 
                 //is it container?
             } else if (e.getClickedBlock().getState() instanceof InventoryHolder) {
@@ -70,6 +78,7 @@ public class InteractListener extends ListenerHandler implements Listener {
                     e.setCancelled(true);
                     e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.powerable-cancel"));
                     //e.getPlayer().sendMessage(Message.sendConfigMessage("claim-guard.powerable-cancel"));
+
 
                 }
             }
@@ -114,7 +123,6 @@ public class InteractListener extends ListenerHandler implements Listener {
             }
         }
     }
-
 
 
 }

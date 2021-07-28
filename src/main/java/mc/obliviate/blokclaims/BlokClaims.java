@@ -5,7 +5,7 @@ import mc.obliviate.blokclaims.handlers.*;
 import mc.obliviate.blokclaims.listeners.*;
 import mc.obliviate.blokclaims.utils.SignUtils;
 import mc.obliviate.blokclaims.utils.chunkborder.ChunkBorder;
-import mc.obliviate.blokclaims.utils.claim.ClaimCore;
+import mc.obliviate.blokclaims.utils.claim.ClaimManager;
 import mc.obliviate.blokclaims.utils.gui.InventoryAPI;
 import mc.obliviate.blokclaims.utils.teleport.TeleportUtil;
 import mc.obliviate.blokclaims.utils.timer.Timer;
@@ -29,7 +29,7 @@ public class BlokClaims extends JavaPlugin {
     private ConfigHandler configHandler;
     private HologramHandler hologramHandler;
     private DataHandler dataHandler;
-    private ClaimCore claimCore;
+    private ClaimManager claimCore;
     private ChunkBorder chunkBorder;
     private TeleportUtil teleportUtil;
     private Economy economy;
@@ -95,6 +95,11 @@ public class BlokClaims extends JavaPlugin {
 
     }
 
+    @Override
+    public void onDisable() {
+        Bukkit.getLogger().info("BlokClaims disabling");
+        getSqlHandler().save(false);
+    }
 
     //TODO RECHECK ALL LISTENERS
     //TODO USE ENUM LIST
@@ -142,7 +147,7 @@ public class BlokClaims extends JavaPlugin {
         hologramHandler = new HologramHandler();
         chunkBorder = new ChunkBorder(this);
         dataHandler = new DataHandler();
-        claimCore = new ClaimCore(this);
+        claimCore = new ClaimManager(this);
         teleportUtil = new TeleportUtil(this);
         sqlHandler = new SQLHandler(this);
         economyHandler = new EconomyHandler(this);
@@ -169,7 +174,7 @@ public class BlokClaims extends JavaPlugin {
         return sqlHandler;
     }
 
-    public ClaimCore getClaimCore() {
+    public ClaimManager getClaimCore() {
         return claimCore;
     }
 

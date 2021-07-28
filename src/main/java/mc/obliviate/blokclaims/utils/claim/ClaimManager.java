@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.DataHandler;
+import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,12 +20,12 @@ import java.util.UUID;
 import static mc.obliviate.blokclaims.BlokClaims.useHolographicDisplay;
 import static mc.obliviate.blokclaims.utils.claim.ClaimUtils.isClaimWorld;
 
-public class ClaimCore {
+public class ClaimManager {
 
     private final BlokClaims plugin;
     private final DataHandler dataHandler;
 
-    public ClaimCore(BlokClaims plugin) {
+    public ClaimManager(BlokClaims plugin) {
         this.plugin = plugin;
         this.dataHandler = plugin.getDataHandler();
     }
@@ -42,6 +43,7 @@ public class ClaimCore {
     public ClaimData getClaimData(ChunkID chunk) {
         ChunkID chunkID = dataHandler.getAllChunkList().get(chunk);
         if (chunkID == null) return null;
+        Debug.log(chunkID + "-- is main chunk id", true);
         return dataHandler.getAllClaimDataList().get(chunkID);
     }
     public boolean isInOwnClaim(Player p) {

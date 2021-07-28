@@ -3,14 +3,12 @@ package mc.obliviate.blokclaims.utils.claim.chunkcheckers;
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
-import mc.obliviate.blokclaims.utils.claim.ClaimCore;
-import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
+import mc.obliviate.blokclaims.utils.claim.ClaimManager;
 import mc.obliviate.blokclaims.utils.debug.Debug;
-import org.bukkit.Bukkit;
 
 public class ClaimableChunks {
 
-    private final ClaimCore cm;
+    private final ClaimManager cm;
 
     private boolean connected = false;
     private boolean noConflict = true;
