@@ -1,5 +1,6 @@
 package mc.obliviate.blokclaims;
 
+import com.hakan.borderapi.bukkit.BorderAPI;
 import mc.obliviate.blokclaims.commands.PlayerCommands;
 import mc.obliviate.blokclaims.handlers.*;
 import mc.obliviate.blokclaims.listeners.*;
@@ -23,182 +24,184 @@ import java.util.List;
 
 public class BlokClaims extends JavaPlugin {
 
-    private InventoryAPI inventoryAPI;
-    private SignUtils signUtils;
-    private SQLHandler sqlHandler;
-    private ConfigHandler configHandler;
-    private HologramHandler hologramHandler;
-    private DataHandler dataHandler;
-    private ClaimManager claimCore;
-    private ChunkBorder chunkBorder;
-    private TeleportUtil teleportUtil;
-    private Economy economy;
-    private EconomyHandler economyHandler;
+	private static final List<String> worldList = new ArrayList<>();
+	public static boolean useHolographicDisplay;
+	private InventoryAPI inventoryAPI;
+	private SignUtils signUtils;
+	private SQLHandler sqlHandler;
+	private ConfigHandler configHandler;
+	private HologramHandler hologramHandler;
+	private DataHandler dataHandler;
+	private ClaimManager claimCore;
+	private ChunkBorder chunkBorder;
+	private TeleportUtil teleportUtil;
+	private Economy economy;
+	private EconomyHandler economyHandler;
+	private static BorderAPI borderAPI;
+
+	public static List<String> getWorldList() {
+		return worldList;
+	}
+
+	@Override
+	public void onEnable() {
+
+		Bukkit.getLogger().info("BlokClaims-recoded v" + getDescription().getVersion() + " enabling...");
+		final Listener canJoin = new Listener() {
+			@EventHandler
+			public void onJoin(PlayerJoinEvent event) {
+				event.getPlayer().kickPlayer("§cLütfen bekleyin!\n\n§fBlokClaims§7 verileri şu anda yüklenme aşamasında.\n§7Biraz bekledikten sonra tekrar deneyin.");
+			}
+		};
+
+		setupCommands();
+		setupHandlers();
+		sqlHandler.createTableIfNotExits();
+		registerListeners();
+
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			Bukkit.getLogger().warning("*** Vault bulunamadı! ***");
+			Bukkit.getLogger().warning("*** BlokClaims ekonomiyi kullanamayacak. ***");
+		} else {
+			if (!setupEconomy()) {
+				Bukkit.getLogger().severe("Vault kurulumu esnasında bir sorun oluştu!");
+			}
+		}
 
 
-    private static final List<String> worldList = new ArrayList<>();
+		new Timer(this);
 
-    public enum CLAIM_PERMISSIONS {
-        PLACE_BREAK_SPAWNER,
-        PLACE_BREAK_BLOCK,
-        ARMOR_STAND_INTERACT,
-        ITEM_FRAME_INTERACT,
-        USE_BUCKET,
-        USE_CONTAINERS,
-        USE_POWERABLES,
-        OPEN_LOGS,
-        INTERACT_MOBS,
-        MANAGE_MEMBERS,
-        EDIT_HOMES
-    }
+		useHolographicDisplay = Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays");
+		if (!useHolographicDisplay) {
+			getLogger().severe("*** HolographicDisplays bulunamadı! ***");
+			getLogger().severe("*** BlokClaims hologramları aktif edilemeyecek. ***");
+		}
 
-    public static boolean useHolographicDisplay;
+		Bukkit.getPluginManager().registerEvents(canJoin, this);
 
+		PlayerJoinEvent.getHandlerList().unregister(canJoin);
 
-    @Override
-    public void onEnable() {
+	}
 
-        Bukkit.getLogger().info("BlokClaims-recoded v" + getDescription().getVersion() + " enabling...");
-        final Listener canJoin = new Listener() {
-            @EventHandler
-            public void onJoin(PlayerJoinEvent event) {
-                event.getPlayer().kickPlayer("§cLütfen bekleyin!\n\n§fBlokClaims§7 verileri şu anda yüklenme aşamasında.\n§7Biraz bekledikten sonra tekrar deneyin.");
-            }
-        };
+	@Override
+	public void onDisable() {
+		Bukkit.getLogger().info("BlokClaims disabling");
+		getSqlHandler().save(false);
+	}
 
-        setupCommands();
-        setupHandlers();
-        sqlHandler.createTableIfNotExits();
-        registerListeners();
+	//TODO RECHECK ALL LISTENERS
+	//TODO USE ENUM LIST
+	private void registerListeners() {
 
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            Bukkit.getLogger().warning("*** Vault bulunamadı! ***");
-            Bukkit.getLogger().warning("*** BlokClaims ekonomiyi kullanamayacak. ***");
-        } else {
-            if (!setupEconomy()) {
-                Bukkit.getLogger().severe("Vault kurulumu esnasında bir sorun oluştu!");
-            }
-        }
+		PluginManager pm = Bukkit.getPluginManager();
 
 
-        new Timer(this);
-
-        useHolographicDisplay = Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays");
-        if (!useHolographicDisplay) {
-            getLogger().severe("*** HolographicDisplays bulunamadı! ***");
-            getLogger().severe("*** BlokClaims hologramları aktif edilemeyecek. ***");
-        }
-
-        Bukkit.getPluginManager().registerEvents(canJoin, this);
-
-        PlayerJoinEvent.getHandlerList().unregister(canJoin);
-
-    }
-
-    @Override
-    public void onDisable() {
-        Bukkit.getLogger().info("BlokClaims disabling");
-        getSqlHandler().save(false);
-    }
-
-    //TODO RECHECK ALL LISTENERS
-    //TODO USE ENUM LIST
-    private void registerListeners() {
-
-        PluginManager pm = Bukkit.getPluginManager();
+		pm.registerEvents(new InteractListener(this), this);
+		pm.registerEvents(new FlowListener(this), this);
+		pm.registerEvents(new PistonListener(this), this);
+		pm.registerEvents(new TeleportListener(this), this);
+		pm.registerEvents(new BucketListener(this), this);
+		pm.registerEvents(new GrowListener(this), this);
+		pm.registerEvents(new BlockPlaceListener(this), this);
+		pm.registerEvents(new BlockBreakListener(this), this);
+		pm.registerEvents(new BurnListener(this), this);
+		pm.registerEvents(new ExplosionListener(this), this);
+		pm.registerEvents(new RedstoneListener(this), this);
+		pm.registerEvents(new EntityInteractListener(this), this);
+		pm.registerEvents(new DispenserListener(this), this);
+		pm.registerEvents(new ProjectileListener(this), this);
 
 
-        pm.registerEvents(new InteractListener(this), this);
-        pm.registerEvents(new FlowListener(this), this);
-        pm.registerEvents(new PistonListener(this), this);
-        pm.registerEvents(new TeleportListener(this), this);
-        pm.registerEvents(new BucketListener(this), this);
-        pm.registerEvents(new GrowListener(this), this);
-        pm.registerEvents(new BlockPlaceListener(this), this);
-        pm.registerEvents(new BlockBreakListener(this), this);
-        pm.registerEvents(new BurnListener(this), this);
-        pm.registerEvents(new ExplosionListener(this), this);
-        pm.registerEvents(new RedstoneListener(this), this);
-        pm.registerEvents(new EntityInteractListener(this), this);
-        pm.registerEvents(new DispenserListener(this), this);
-        pm.registerEvents(new ProjectileListener(this), this);
+	}
+
+	private void setupCommands() {
+		getCommand("claim").setExecutor(new PlayerCommands(this));
+	}
+
+	private boolean setupEconomy() {
+		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		economy = rsp.getProvider();
+		return economy != null;
+	}
 
 
-    }
+	private void setupHandlers() {
+		inventoryAPI = new InventoryAPI(this);
+		signUtils = new SignUtils(this);
+		configHandler = new ConfigHandler(this);
+		hologramHandler = new HologramHandler();
+		chunkBorder = new ChunkBorder(this);
+		dataHandler = new DataHandler();
+		claimCore = new ClaimManager(this);
+		teleportUtil = new TeleportUtil(this);
+		sqlHandler = new SQLHandler(this);
+		economyHandler = new EconomyHandler(this);
+		borderAPI = BorderAPI.getInstance(this);
 
-    private void setupCommands() {
-        getCommand("claim").setExecutor(new PlayerCommands(this));
-    }
+	}
 
-    private boolean setupEconomy() {
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        economy = rsp.getProvider();
-        return economy != null;
-    }
+	public ConfigHandler getConfigHandler() {
+		return configHandler;
+	}
 
+	public InventoryAPI getInventoryAPI() {
+		return inventoryAPI;
+	}
 
-    private void setupHandlers() {
-        inventoryAPI = new InventoryAPI(this);
-        signUtils = new SignUtils(this);
-        configHandler = new ConfigHandler(this);
-        hologramHandler = new HologramHandler();
-        chunkBorder = new ChunkBorder(this);
-        dataHandler = new DataHandler();
-        claimCore = new ClaimManager(this);
-        teleportUtil = new TeleportUtil(this);
-        sqlHandler = new SQLHandler(this);
-        economyHandler = new EconomyHandler(this);
+	public SignUtils getSignUtils() {
+		return signUtils;
+	}
 
-    }
+	public static BorderAPI getBorderAPI() {
+		return borderAPI;
+	}
 
-    public static List<String> getWorldList() {
-        return worldList;
-    }
+	public SQLHandler getSqlHandler() {
+		return sqlHandler;
+	}
 
-    public ConfigHandler getConfigHandler() {
-        return configHandler;
-    }
+	public ClaimManager getClaimCore() {
+		return claimCore;
+	}
 
-    public InventoryAPI getInventoryAPI() {
-        return inventoryAPI;
-    }
+	public HologramHandler getHologramHandler() {
+		return hologramHandler;
+	}
 
-    public SignUtils getSignUtils() {
-        return signUtils;
-    }
+	public DataHandler getDataHandler() {
+		return dataHandler;
+	}
 
-    public SQLHandler getSqlHandler() {
-        return sqlHandler;
-    }
+	public ChunkBorder getChunkBorder() {
+		return chunkBorder;
+	}
 
-    public ClaimManager getClaimCore() {
-        return claimCore;
-    }
+	public TeleportUtil getTeleportUtil() {
+		return teleportUtil;
+	}
 
-    public HologramHandler getHologramHandler() {
-        return hologramHandler;
-    }
+	public Economy getEconomy() {
+		return economy;
+	}
 
-    public DataHandler getDataHandler() {
-        return dataHandler;
-    }
+	public EconomyHandler getEconomyHandler() {
+		return economyHandler;
+	}
 
-    public ChunkBorder getChunkBorder() {
-        return chunkBorder;
-    }
-
-    public TeleportUtil getTeleportUtil() {
-        return teleportUtil;
-    }
-
-    public Economy getEconomy() {
-        return economy;
-    }
-
-    public EconomyHandler getEconomyHandler() {
-        return economyHandler;
-    }
+	public enum CLAIM_PERMISSIONS {
+		PLACE_BREAK_SPAWNER,
+		PLACE_BREAK_BLOCK,
+		ARMOR_STAND_INTERACT,
+		ITEM_FRAME_INTERACT,
+		USE_BUCKET,
+		USE_CONTAINERS,
+		USE_POWERABLES,
+		OPEN_LOGS,
+		INTERACT_MOBS,
+		MANAGE_MEMBERS,
+		EDIT_HOMES
+	}
 }
