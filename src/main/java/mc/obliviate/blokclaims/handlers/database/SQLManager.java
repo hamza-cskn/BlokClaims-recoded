@@ -9,14 +9,16 @@ import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.bloksqliteapi.SQLHandler;
 import mc.obliviate.bloksqliteapi.sqlutils.DataType;
 import mc.obliviate.bloksqliteapi.sqlutils.SQLTable;
+import mc.obliviate.bloksqliteapi.sqlutils.SQLUpdateColumn;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class SQLManager extends SQLHandler {
 
@@ -35,8 +37,10 @@ public class SQLManager extends SQLHandler {
 
 	@Override
 	public void onConnect() {
-		Bukkit.getLogger().info("[BlokClaims] Connected...");
+		Bukkit.getLogger().info("[BlokClaims] Writting to cache...");
 		createClaimDataTable();
+		putClaimDatas();
+		putChunkDatas();
 	}
 
 	public void createClaimDataTable() {
@@ -56,10 +60,11 @@ public class SQLManager extends SQLHandler {
 
 	public void writeClaimData(final boolean async) throws SQLException {
 
-		final HashMap<ChunkID, ClaimData> claimsInSQL = getClaimDataFromDB(async);
+		plugin.getLogger().info("Writting sql datas...");
 		for (ClaimData claimData : plugin.getDataHandler().getAllClaimDataList().values()) {
 			//Owner = UUID of Owner
 			final String owner = ClaimSerializer.serializeOwner(claimData.getOwner());
+			plugin.getLogger().info(owner);
 
 			final String chunkList = ClaimSerializer.serializeChunkList(claimData.getChunkList());
 
@@ -80,16 +85,19 @@ public class SQLManager extends SQLHandler {
 			//name, material, world, x, y, z, yaw, pitch
 			final String formattedHomeList = ClaimSerializer.serializeClaimHomeList(claimData.getHomeList());
 
-			long energy = claimData.getEnergy().getAmount();
+			final long energy = claimData.getEnergy().getAmount();
 
-			claimDataTable.createUpdate(claimID)
+			final SQLUpdateColumn update = claimDataTable.createUpdate(claimID)
+					.putData("claimID",claimID)
 					.putData("owner", owner)
+					.putData("energy", energy)
+					.putData("mainBlock", mainBlock)
+					.putData("permissions", formattedPermissionState)
 					.putData("memberList", memberList)
 					.putData("chunkList", chunkList)
-					.putData("claimTimer", energy)
-					.putData("mainBlock", mainBlock)
-					.putData("permissionState", formattedPermissionState)
 					.putData("homeList", formattedHomeList);
+
+			claimDataTable.insertOrUpdate(update);
 		}
 
 
@@ -97,7 +105,7 @@ public class SQLManager extends SQLHandler {
 
 	private void putClaimDatas() {
 		try {
-			plugin.getDataHandler().setAllClaimDataList(getClaimDataFromDB(false));
+			plugin.getDataHandler().setAllClaimDataList(callClaimData(false));
 		} catch (SQLException throwables) {
 			throwables.printStackTrace();
 		}
@@ -123,26 +131,27 @@ public class SQLManager extends SQLHandler {
 
 	private void saveSQLDatabase(boolean async) {
 		Bukkit.getLogger().info("SQL database backup started (ASYNC: " + async + ")");
-		if (getConnection() != null) {
-			long aaa = System.nanoTime();
+		if (isConnected()) {
+			final long startTime = System.nanoTime();
 			try {
 				writeClaimData(async);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 
-			long bbb = System.nanoTime();
-			Bukkit.getLogger().info("SQL database backup ended. (" + (double) (bbb - aaa) / 1000000.0 + "ms)");
+			final long endTime = System.nanoTime();
+			Bukkit.getLogger().info("SQL database backup ended. (" + (double) (endTime - startTime) / 1000000d + "ms)");
 		} else {
-			Bukkit.getLogger().info("SQL Data saving started without connection or sql statement. blokClaims cancelled it.");
+			Bukkit.getLogger().info("SQL Data saving started without connection or sql statement. BlokClaims cancelled it.");
 		}
 	}
 
-	public HashMap<ChunkID, ClaimData> getClaimDataFromDB(boolean async) throws SQLException {
+	public HashMap<ChunkID, ClaimData> callClaimData(boolean async) throws SQLException {
 
 		final HashMap<ChunkID, ClaimData> resultClaimData = new HashMap<>();
 		final ResultSet rs = claimDataTable.selectAll();
 
+		plugin.getLogger().info("Calling claim datas...");
 		while (rs.next()) {
 			ChunkID id = new ChunkID(rs.getString("claimID"));
 			int energy = rs.getInt("energy");

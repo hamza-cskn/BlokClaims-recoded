@@ -243,7 +243,7 @@ public class ClaimData {
     }
 
     public ClaimPermission getPermissionState(UUID member) {
-        if (permissionStates == null) return new ClaimPermission(plugin, member, claimID, null);
+        if (permissionStates == null) return new ClaimPermission(member, claimID, null);
         return permissionStates.get(member);
     }
 
@@ -252,7 +252,7 @@ public class ClaimData {
         if (cps == null) {
             List<ClaimPermissionType> permissions = new ArrayList<>();
             permissions.add(permission);
-            cps = new ClaimPermission(plugin, uuid, claimID, permissions);
+            cps = new ClaimPermission(uuid, claimID, permissions);
             permissionStates.put(uuid, cps);
         } else {
             cps.addPermission(permission);

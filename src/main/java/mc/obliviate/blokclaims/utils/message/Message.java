@@ -11,8 +11,8 @@ public class Message {
 
     private static String prefix;
 
-    public Message() {
-        prefix = color(ConfigHandler.messages.getString("prefix"));
+    public static void setPrefix(String prefix) {
+        Message.prefix = prefix;
     }
 
     public static YamlConfiguration getMessageConfig() {

@@ -134,6 +134,7 @@ public class BlokClaims extends JavaPlugin {
 	}
 
 	private void setupHandlers() {
+		sqlManager = new SQLManager(getDataFolder().getPath(), this);
 		inventoryAPI = new InventoryAPI(this);
 		signUtils = new SignUtils(this);
 		configHandler = new ConfigHandler(this);
@@ -142,10 +143,8 @@ public class BlokClaims extends JavaPlugin {
 		dataHandler = new DataHandler();
 		claimCore = new ClaimManager(this);
 		teleportUtil = new TeleportUtil(this);
-		sqlManager = new SQLManager(getDataFolder().getPath(), this);
 		economyHandler = new EconomyHandler(this);
 		borderAPI = BorderAPI.getInstance(this);
-		ClaimSerializer.plugin = this;
 
 	}
 

@@ -17,8 +17,6 @@ public class ClaimSerializer {
 	 * SERIALIZE & DESERIALIZE METHODS
 	 */
 
-	public static BlokClaims plugin;
-
 	protected static int stringToInt(String string) {
 		try {
 			return Integer.parseInt(string);
@@ -60,9 +58,9 @@ public class ClaimSerializer {
 		 * flat;9;0,
 		 * flat;9;1,
 		 **/
-		List<ChunkID> chunkList = new ArrayList<>();
-		for (String rawChunk : stringChunkList.split(",")) {
-			ChunkID id = new ChunkID(rawChunk.replace(";", ","));
+		final List<ChunkID> chunkList = new ArrayList<>();
+		for (final String rawChunk : stringChunkList.split(",")) {
+			final ChunkID id = new ChunkID(rawChunk.replace(";", ","));
 			chunkList.add(id);
 		}
 		reverseList(chunkList);
@@ -71,9 +69,10 @@ public class ClaimSerializer {
 
 	protected static String serializeChunkList(List<ChunkID> chunkIdlist) {
 		//ChunkList = world1;x1;y1, world2;x2;y2
-		StringBuilder chunkList = new StringBuilder();
-		for (ChunkID chunkid : chunkIdlist) {
-			String formattedChunk = chunkid.toString().replace(",", ";");
+		final StringBuilder chunkList = new StringBuilder();
+		for (final ChunkID chunkid : chunkIdlist) {
+			final String formattedChunk = chunkid.toString().replace(",", ";");
+			Bukkit.getLogger().info(formattedChunk);
 			chunkList.insert(0, formattedChunk + ",");
 		}
 		return chunkList.toString();
@@ -120,7 +119,7 @@ public class ClaimSerializer {
 				permissions.add(ClaimPermissionType.valueOf(perm));
 			}
 
-			permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
+			permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(UUID.fromString(datas[0]), id, permissions));
 		}
 		return permissionStates;
 	}

@@ -1,6 +1,7 @@
 package mc.obliviate.blokclaims.handlers;
 
 import mc.obliviate.blokclaims.BlokClaims;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
@@ -142,7 +143,7 @@ public class ConfigHandler {
 
         }
 
-        for (BlokClaims.CLAIM_PERMISSIONS perm : BlokClaims.CLAIM_PERMISSIONS.values()) {
+        for (ClaimPermissionType perm : ClaimPermissionType.values()) {
             if (!messages.contains("permissions." + perm.name() + ".name")) {
                 messages.set("permissions." + perm.name() + ".name", perm.name());
             }
@@ -156,7 +157,7 @@ public class ConfigHandler {
         //List<String> lore = Main.messages.getStringList("permissions." + permission + ".description");
 
         //Register prefix
-        new Message();
+        Message.setPrefix(Message.color(ConfigHandler.messages.getString("prefix")));
         save(messages, messageFile);
 
 

@@ -31,15 +31,15 @@ public class Timer {
             }
         }.runTaskTimer(plugin, 20, 1200);
 
-        int period = plugin.getConfigHandler().getConfig().getInt("backup-interval", 300);
-        if (period < 0) return;
+        final long period = plugin.getConfigHandler().getConfig().getInt("backup-interval", 300) * 20L;
+        if (period <= 0) return;
         new BukkitRunnable() {
             @Override
             public void run() {
                 plugin.getSqlManager().save(true);
 
             }
-        }.runTaskTimer(plugin, 20, period * 20L);
+        }.runTaskTimer(plugin, period, period);
     }
 
 

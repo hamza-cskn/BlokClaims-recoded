@@ -93,7 +93,6 @@ public class ClaimManager {
 	public ChunkID getCurrentChunkID(Player p) {
 		//TODO replace null as playerCurrentClaimData.get(p.getUniqueId());
 		ChunkID chunkID = null;
-		if (chunkID != null) return chunkID;
 		return ClaimUtils.getChunkID(p.getLocation());
 	}
 

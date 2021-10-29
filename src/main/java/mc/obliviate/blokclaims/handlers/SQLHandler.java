@@ -368,7 +368,7 @@ public class SQLHandler {
                 permissions.add(ClaimPermissionType.valueOf(perm));
             }
 
-            permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
+            permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(UUID.fromString(datas[0]), id, permissions));
         }
         return permissionStates;
     }
