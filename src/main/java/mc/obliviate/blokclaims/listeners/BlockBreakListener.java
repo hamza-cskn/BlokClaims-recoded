@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Material;
@@ -23,8 +24,8 @@ public class BlockBreakListener extends ListenerHandler implements Listener {
         ClaimData cd = cm.getClaimData(e.getBlock().getLocation());
         if (cd == null) return;
         ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission("PLACE_BREAK_BLOCK");
-        boolean spPermState = cps != null && cps.hasPermission("PLACE_BREAK_SPAWNER");
+        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_BLOCK);
+        boolean spPermState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_SPAWNER);
 
         if (permState && e.getBlock().getType().equals(Material.SPAWNER) && !spPermState) {
             e.setCancelled(true);

@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -28,7 +29,7 @@ public class ProjectileListener extends ListenerHandler implements Listener {
                 ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
                 if (cd != null) {
                     ClaimPermission cps = cd.getPermissionState((Player) projectile.getShooter());
-                    if (cps != null && cps.hasPermission("INTERACT_MOBS")) return;
+                    if (cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS)) return;
                     e.setCancelled(true);
                 }
             }

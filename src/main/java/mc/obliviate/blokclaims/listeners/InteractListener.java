@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.gui.ClaimStoneGUI;
 import mc.obliviate.blokclaims.utils.debug.Debug;
@@ -62,7 +63,7 @@ public class InteractListener extends ListenerHandler implements Listener {
                 //is it container?
             } else if (e.getClickedBlock().getState() instanceof InventoryHolder) {
                 ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-                boolean permState = cps != null && cps.hasPermission("USE_CONTAINERS");
+                boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_CONTAINERS);
 
                 if (!permState) {
                     e.setCancelled(true);
@@ -72,7 +73,7 @@ public class InteractListener extends ListenerHandler implements Listener {
 
             } else if (e.getClickedBlock().getBlockData() instanceof Powerable) {
                 ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-                boolean permState = cps != null && cps.hasPermission("USE_POWERABLES");
+                boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_POWERABLES);
                 //Bukkit.broadcastMessage("Powerable: " + e.getClickedBlock().getType().toString());
                 if (!permState) {
                     e.setCancelled(true);
@@ -93,7 +94,7 @@ public class InteractListener extends ListenerHandler implements Listener {
             switch (e.getClickedBlock().getType()) {
 
                 case FARMLAND:
-                    permState = cps != null && cps.hasPermission("PLACE_BREAK_BLOCK");
+                    permState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_BLOCK);
 
                     if (!permState) {
                         e.setCancelled(true);
@@ -113,7 +114,7 @@ public class InteractListener extends ListenerHandler implements Listener {
                 case SPRUCE_PRESSURE_PLATE:
                 case STONE_PRESSURE_PLATE:
                 case WARPED_PRESSURE_PLATE:
-                    permState = cps != null && cps.hasPermission("USE_POWERABLES");
+                    permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_POWERABLES);
 
                     if (!permState) {
                         e.setCancelled(true);

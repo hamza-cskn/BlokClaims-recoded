@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.entity.EntityType;
@@ -30,7 +31,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
         ClaimData cd = cm.getClaimData(e.getRightClicked().getLocation());
         if (cd == null) return;
         ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission("ARMOR_STAND_INTERACT");
+        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.ARMOR_STAND_INTERACT);
 
         if (permState) return;
         e.setCancelled(true);
@@ -44,7 +45,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
             ClaimData cd = cm.getClaimData(e.getRightClicked().getLocation());
             if (cd == null) return;
             ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-            boolean permState = cps != null && cps.hasPermission("ITEM_FRAME_INTERACT");
+            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.ITEM_FRAME_INTERACT);
             if (permState) return;
             e.setCancelled(true);
             e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
@@ -59,31 +60,27 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
 
         ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
         if (cd == null) return;
-        Player p = (Player) e.getDamager();
-        ClaimPermission cps = cd.getPermissionState(p);
+
+        final Player p = (Player) e.getDamager();
+        final ClaimPermission cps = cd.getPermissionState(p);
         boolean permState;
+
         switch (e.getEntityType()) {
             case PAINTING:
             case ITEM_FRAME:
-            case ARMOR_STAND:
-
-                permState = cps != null && cps.hasPermission(e.getEntityType() + "_INTERACT");
+                permState = cps != null && cps.hasPermission(ClaimPermissionType.ITEM_FRAME_INTERACT);
                 if (permState) return;
                 e.setCancelled(true);
-                String type = "";
-                switch (e.getEntityType()) {
-                    case ITEM_FRAME:
-                        type = "item-frame";
-                        break;
-                    case ARMOR_STAND:
-                        type = "armor-stand";
-                        break;
-                }
-                p.sendActionBar(Message.getConfigMessage("claim-guard." + type + "-interact-cancel"));
-
-                break;
+                p.sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
+                return;
+            case ARMOR_STAND:
+                permState = cps != null && cps.hasPermission(ClaimPermissionType.ARMOR_STAND_INTERACT);
+                if (permState) return;
+                e.setCancelled(true);
+                p.sendActionBar(Message.getConfigMessage("claim-guard.armor-stand-interact-cancel"));
+                return;
             default:
-                permState = cps != null && cps.hasPermission("INTERACT_MOBS");
+                permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
                 if (permState) return;
                 e.setCancelled(true);
         }
@@ -104,7 +101,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
 
                     Player p = (Player) e.getRemover();
                     ClaimPermission cps = cd.getPermissionState(p);
-                    boolean permState = cps != null && cps.hasPermission("USE_BUCKET");
+                    boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_BUCKET);
 
                     if (permState) return;
                     e.setCancelled(true);
@@ -120,7 +117,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
         ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
         if (cd == null) return;
         ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission("INTERACT_MOBS");
+        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
         if (permState) return;
         e.setCancelled(true);
 
@@ -134,7 +131,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
             ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
             if (cd == null) return;
             ClaimPermission cps = cd.getPermissionState(p);
-            boolean permState = cps != null && cps.hasPermission("INTERACT_MOBS");
+            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
             if (permState) return;
             e.setCancelled(true);
         }
@@ -146,7 +143,7 @@ public class EntityInteractListener extends ListenerHandler implements Listener 
             ClaimData cd = cm.getClaimData(e.getMount().getLocation());
             if (cd == null) return;
             ClaimPermission cps = cd.getPermissionState((Player) e.getEntity());
-            boolean permState = cps != null && cps.hasPermission("INTERACT_MOBS");
+            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
             if (permState) return;
             e.setCancelled(true);
         }

@@ -1,0 +1,16 @@
+package mc.obliviate.blokclaims.permission;
+
+public enum ClaimPermissionType {
+	PLACE_BREAK_SPAWNER,
+	PLACE_BREAK_BLOCK,
+	ARMOR_STAND_INTERACT,
+	ITEM_FRAME_INTERACT,
+	USE_BUCKET,
+	USE_CONTAINERS,
+	USE_POWERABLES,
+	OPEN_LOGS,
+	INTERACT_MOBS,
+	MANAGE_MEMBERS,
+	EDIT_HOMES
+
+}

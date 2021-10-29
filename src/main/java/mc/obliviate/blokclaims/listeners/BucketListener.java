@@ -4,6 +4,7 @@ import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Material;
@@ -25,7 +26,7 @@ public class BucketListener extends ListenerHandler implements Listener {
         ClaimData cd = cm.getClaimData(chunkID);
         if (cd == null) return;
         ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission("USE_BUCKET");
+        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_BUCKET);
 
         if (!permState) {
             e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.use-bucket-cancel"));
@@ -47,7 +48,7 @@ public class BucketListener extends ListenerHandler implements Listener {
             }
         } else {
             ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-            boolean permState = cps != null && cps.hasPermission("USE_BUCKET");
+            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_BUCKET);
 
             if (!permState) {
 

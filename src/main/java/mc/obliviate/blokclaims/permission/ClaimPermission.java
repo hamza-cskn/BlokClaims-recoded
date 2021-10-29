@@ -14,9 +14,9 @@ public class ClaimPermission {
     private final BlokClaims plugin;
     private final UUID uuid;
     private final ChunkID claimID;
-    private final List<String> permissions = new ArrayList<>();
+    private final List<ClaimPermissionType> permissions = new ArrayList<>();
 
-    public ClaimPermission(BlokClaims plugin, UUID uuid, ChunkID claimID, List<String> permissions) {
+    public ClaimPermission(BlokClaims plugin, UUID uuid, ChunkID claimID, List<ClaimPermissionType> permissions) {
         this.plugin = plugin;
         this.uuid = uuid;
         this.claimID = claimID;
@@ -25,34 +25,28 @@ public class ClaimPermission {
         }
     }
 
-    public List<String> getPermissions() {
+    public List<ClaimPermissionType> getPermissions() {
         return this.permissions;
     }
 
-    public void addPermission(String permission) {
-        if (!isValidPermission(permission)) return;
+    public void addPermission(ClaimPermissionType permission) {
         this.permissions.add(permission);
 
     }
 
-    public void removePermission(String permission) {
-        if (!isValidPermission(permission)) return;
+    public void removePermission(ClaimPermissionType permission) {
         this.permissions.remove(permission);
     }
 
-    public boolean hasPermission(String permission) {
+    public boolean hasPermission(ClaimPermissionType permission) {
         //if (player.isOp()) return true;
-        return (permissions.contains(permission) && isValidPermission(permission));
+        return (permissions.contains(permission));
     }
 
     public OfflinePlayer getPlayer() {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
-    private boolean isValidPermission(String permission) {
-        BlokClaims.CLAIM_PERMISSIONS.valueOf(permission);
-        return true;
-    }
 
     //public String getUuid() { return uuid; }
 
