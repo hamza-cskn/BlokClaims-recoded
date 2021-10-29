@@ -1,6 +1,6 @@
 name: BlokClaims-recoded
-version: 2.0.0
-api-version: 1.16
+version: 2.0.1
+api-version: 1.17
 main: mc.obliviate.blokclaims.BlokClaims
 authors: [ Mr_Obliviate, HakanKargın ]
 description: Custom claim management plugin for Blok Dünyası!

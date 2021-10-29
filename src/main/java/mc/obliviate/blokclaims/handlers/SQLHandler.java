@@ -5,6 +5,7 @@ import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.homes.ClaimHome;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -176,7 +177,6 @@ public class SQLHandler {
 
     public HashMap<ChunkID, ClaimData> getClaimDataFromDB(boolean async) throws SQLException {
 
-
         HashMap<ChunkID, ClaimData> resultClaimData = new HashMap<>();
         String sql = "SELECT * FROM claims";
 
@@ -244,7 +244,6 @@ public class SQLHandler {
     public void save(boolean async) {
         if (async) Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveSQLDatabase(true));
         else saveSQLDatabase(false);
-
     }
 
     private void saveSQLDatabase(boolean async) {
@@ -262,7 +261,6 @@ public class SQLHandler {
         } else {
             Bukkit.getLogger().info("SQL Data saving started without connection or sql statement. blokClaims cancelled it.");
         }
-
     }
 
     private OfflinePlayer stringUUIDtoOfflinePlayer(String ownerUUID) {
@@ -356,10 +354,20 @@ public class SQLHandler {
 
     private HashMap<UUID, ClaimPermission> deserializePermissions(String stringPermission, ChunkID id) {
         HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
-        for (String data : stringPermission.split(",")) {
-            String[] datas = data.split(";");
+        for (final String data : stringPermission.split(",")) {
+            final String[] datas = data.split(";");
             if (datas[0] == null || datas[0].equalsIgnoreCase("")) continue;
-            List<String> permissions = new ArrayList<>(Arrays.asList(datas).subList(1, datas.length));
+            final List<ClaimPermissionType> permissions = new ArrayList<>();
+
+            boolean first = true;
+            for (final String perm : datas) {
+                if (first) {
+                    first = false;
+                    continue;
+                }
+                permissions.add(ClaimPermissionType.valueOf(perm));
+            }
+
             permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(plugin, UUID.fromString(datas[0]), id, permissions));
         }
         return permissionStates;
@@ -373,7 +381,7 @@ public class SQLHandler {
             StringBuilder format = new StringBuilder();
             ClaimPermission cps = permissionStates.get(key);
             if (cps == null) continue;
-            for (String permission : cps.getPermissions()) {
+            for (ClaimPermissionType permission : cps.getPermissions()) {
                 format.insert(0, permission + ";");
             }
             formattedPermissionState.insert(0, key + ";" + format + ",");

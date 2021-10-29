@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="HWorldBorderAPI">
+  <library name="SQLiteAPI">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../Libraries/HWorldBorderAPI.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../Libraries/SQLiteAPI.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

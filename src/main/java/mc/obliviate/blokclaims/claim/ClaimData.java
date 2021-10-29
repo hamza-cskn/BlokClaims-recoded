@@ -8,6 +8,7 @@ import mc.obliviate.blokclaims.energy.Energy;
 import mc.obliviate.blokclaims.homes.ClaimHome;
 import mc.obliviate.blokclaims.invite.Invite;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
+import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.energy.EnergyUtils;
@@ -246,10 +247,10 @@ public class ClaimData {
         return permissionStates.get(member);
     }
 
-    public void addPermission(UUID uuid, String permission) {
+    public void addPermission(UUID uuid, ClaimPermissionType permission) {
         ClaimPermission cps = permissionStates.get(uuid);
         if (cps == null) {
-            List<String> permissions = new ArrayList<>();
+            List<ClaimPermissionType> permissions = new ArrayList<>();
             permissions.add(permission);
             cps = new ClaimPermission(plugin, uuid, claimID, permissions);
             permissionStates.put(uuid, cps);
@@ -258,7 +259,7 @@ public class ClaimData {
         }
     }
 
-    public void removePermission(UUID uuid, String permission) {
+    public void removePermission(UUID uuid, ClaimPermissionType permission) {
         ClaimPermission cps = permissionStates.get(uuid);
         if (cps == null) return;
         cps.removePermission(permission);

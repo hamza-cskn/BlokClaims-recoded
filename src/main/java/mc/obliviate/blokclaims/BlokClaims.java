@@ -3,6 +3,8 @@ package mc.obliviate.blokclaims;
 import com.hakan.borderapi.bukkit.BorderAPI;
 import mc.obliviate.blokclaims.commands.PlayerCommands;
 import mc.obliviate.blokclaims.handlers.*;
+import mc.obliviate.blokclaims.handlers.database.ClaimSerializer;
+import mc.obliviate.blokclaims.handlers.database.SQLManager;
 import mc.obliviate.blokclaims.listeners.*;
 import mc.obliviate.blokclaims.utils.SignUtils;
 import mc.obliviate.blokclaims.utils.chunkborder.ChunkBorder;
@@ -26,9 +28,10 @@ public class BlokClaims extends JavaPlugin {
 
 	private static final List<String> worldList = new ArrayList<>();
 	public static boolean useHolographicDisplay;
+	private static BorderAPI borderAPI;
 	private InventoryAPI inventoryAPI;
 	private SignUtils signUtils;
-	private SQLHandler sqlHandler;
+	private SQLManager sqlManager;
 	private ConfigHandler configHandler;
 	private HologramHandler hologramHandler;
 	private DataHandler dataHandler;
@@ -37,10 +40,13 @@ public class BlokClaims extends JavaPlugin {
 	private TeleportUtil teleportUtil;
 	private Economy economy;
 	private EconomyHandler economyHandler;
-	private static BorderAPI borderAPI;
 
 	public static List<String> getWorldList() {
 		return worldList;
+	}
+
+	public static BorderAPI getBorderAPI() {
+		return borderAPI;
 	}
 
 	@Override
@@ -56,7 +62,7 @@ public class BlokClaims extends JavaPlugin {
 
 		setupCommands();
 		setupHandlers();
-		sqlHandler.createTableIfNotExits();
+		sqlManager.init();
 		registerListeners();
 
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -86,7 +92,7 @@ public class BlokClaims extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		Bukkit.getLogger().info("BlokClaims disabling");
-		getSqlHandler().save(false);
+		getSqlManager().save(false);
 	}
 
 	//TODO RECHECK ALL LISTENERS
@@ -127,7 +133,6 @@ public class BlokClaims extends JavaPlugin {
 		return economy != null;
 	}
 
-
 	private void setupHandlers() {
 		inventoryAPI = new InventoryAPI(this);
 		signUtils = new SignUtils(this);
@@ -137,9 +142,10 @@ public class BlokClaims extends JavaPlugin {
 		dataHandler = new DataHandler();
 		claimCore = new ClaimManager(this);
 		teleportUtil = new TeleportUtil(this);
-		sqlHandler = new SQLHandler(this);
+		sqlManager = new SQLManager(getDataFolder().getPath(), this);
 		economyHandler = new EconomyHandler(this);
 		borderAPI = BorderAPI.getInstance(this);
+		ClaimSerializer.plugin = this;
 
 	}
 
@@ -155,12 +161,8 @@ public class BlokClaims extends JavaPlugin {
 		return signUtils;
 	}
 
-	public static BorderAPI getBorderAPI() {
-		return borderAPI;
-	}
-
-	public SQLHandler getSqlHandler() {
-		return sqlHandler;
+	public SQLManager getSqlManager() {
+		return sqlManager;
 	}
 
 	public ClaimManager getClaimCore() {
@@ -191,17 +193,5 @@ public class BlokClaims extends JavaPlugin {
 		return economyHandler;
 	}
 
-	public enum CLAIM_PERMISSIONS {
-		PLACE_BREAK_SPAWNER,
-		PLACE_BREAK_BLOCK,
-		ARMOR_STAND_INTERACT,
-		ITEM_FRAME_INTERACT,
-		USE_BUCKET,
-		USE_CONTAINERS,
-		USE_POWERABLES,
-		OPEN_LOGS,
-		INTERACT_MOBS,
-		MANAGE_MEMBERS,
-		EDIT_HOMES
-	}
+
 }
