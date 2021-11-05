@@ -2,8 +2,9 @@ package mc.obliviate.blokclaims.utils.claim;
 
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.handlers.DataHandler;
+import mc.obliviate.blokclaims.member.ClaimMember;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Bukkit;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,18 +31,17 @@ public class ClaimManager {
 		this.dataHandler = plugin.getDataHandler();
 	}
 
-
 	// GET CLAIM_DATA
-	public ClaimData getClaimData(Location location) {
+	public Claim getClaimData(Location location) {
 		return getClaimData(ClaimUtils.getChunkID(location.getChunk()));
 	}
 
-	public ClaimData getClaimData(String chunkStringID) {
+	public Claim getClaimData(String chunkStringID) {
 		return getClaimData(new ChunkID(chunkStringID));
 	}
 
-	public ClaimData getClaimData(ChunkID chunk) {
-		ChunkID chunkID = dataHandler.getAllChunkList().get(chunk);
+	public Claim getClaimData(ChunkID chunk) {
+		final ChunkID chunkID = dataHandler.getAllChunkList().get(chunk);
 		if (chunkID == null) return null;
 		Debug.log(chunkID + "-- is main chunk id", true);
 		return dataHandler.getAllClaimDataList().get(chunkID);
@@ -54,31 +55,29 @@ public class ClaimManager {
 	public void createClaim(Player owner, Location mainBlock) {
 
 		mainBlock = mainBlock.getBlock().getLocation();
-		ClaimData data = getClaimData(mainBlock);
+		Claim data = getClaimData(mainBlock);
 
 		if (data == null) {
 			if (isClaimWorld(mainBlock.getWorld())) {
 				ChunkID mainChunk = ClaimUtils.getChunkID(mainBlock.getChunk());
 
-				List<UUID> memberList = new ArrayList<>();
-				List<ChunkID> chunkList = new ArrayList<>();
-				memberList.add(owner.getUniqueId());
+				final HashMap<UUID, ClaimMember> memberList = new HashMap<>();
+				final List<ChunkID> chunkList = new ArrayList<>();
+				memberList.put(owner.getUniqueId(), new ClaimMember(owner.getUniqueId()));
 				ChunkID chunkID = ClaimUtils.getChunkID(mainBlock.getChunk());
-				Bukkit.broadcastMessage(chunkID + "");
 				dataHandler.getAllChunkList().put(chunkID, chunkID);
-				Bukkit.broadcastMessage(dataHandler.getAllChunkList() + "");
 				chunkList.add(chunkID);
 
 
 				int energy = plugin.getConfigHandler().getConfig().getInt("first-claim-time", 43200);
-				data = new ClaimData(plugin, owner.getUniqueId(), memberList, chunkList, mainBlock, chunkID, energy, null, null);
+				data = new Claim(plugin, owner.getUniqueId(), memberList, chunkList, mainBlock, chunkID, energy, null);
 				dataHandler.getAllClaimDataList().put(mainChunk, data);
 
 
 				mainBlock.getBlock().setType(Material.BEDROCK);
 
 				if (useHolographicDisplay) {
-					data.updateHologram();
+					data.updateHologram(plugin);
 				}
 			} else {
 				owner.sendMessage(Message.getConfigMessage("you-can-it-in-this-world"));
@@ -97,30 +96,27 @@ public class ClaimManager {
 	}
 
 
-	public void deleteClaim(ClaimData cd) {
-
+	public void deleteClaim(Claim cd) {
 		if (cd == null) {
 			Bukkit.getLogger().severe("BlokClaims tried to delete a null claim data.");
 			return;
 		}
 		if (dataHandler.getAllClaimDataList().containsKey(cd.getClaimID())) {
 			//ASYNC koktu buralar
-			BukkitTask task = Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			final BukkitTask task = Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 				plugin.getSqlManager().deleteClaimData(cd.getClaimID());
 				//Burası da SYNC kokuyo
 				Bukkit.getScheduler().runTask(plugin, () -> {
 					Bukkit.broadcastMessage("Bir claim'in süresi doldu! ");
 					cd.getMainBlock().getBlock().setType(Material.AIR);
-					if (cd.getHologram() != null) cd.getHologram().delete();
+					if (cd.getHologram(plugin) != null) cd.getHologram(plugin).delete();
 					for (ChunkID chunkID : cd.getChunkList()) {
 						dataHandler.getAllChunkList().remove(chunkID);
 					}
 					dataHandler.getAllClaimDataList().remove(cd.getClaimID());
 				});
-
-
 			});
-			Bukkit.broadcastMessage("deleted a claim data. sync: " + task.isSync() + ". " + task.getTaskId());
+			Bukkit.broadcastMessage("Deleted a claim data. sync: " + task.isSync() + ". " + task.getTaskId());
 		} else {
 			Bukkit.getLogger().severe("BlokClaims tried a claim data but claimDataList does not contains it.");
 		}

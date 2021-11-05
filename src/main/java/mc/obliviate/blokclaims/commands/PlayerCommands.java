@@ -48,7 +48,7 @@ public class PlayerCommands extends ListenerHandler implements CommandExecutor {
                     switch (args[0]) {
                         case "create":
                             if (plugin.getEconomyHandler().has(player, plugin.getConfigHandler().getInt("prices.create-claim"))) {
-                                plugin.getClaimCore().createClaim(player, player.getLocation());
+                                plugin.getClaimManager().createClaim(player, player.getLocation());
                             }
                             break;
                         case "map":

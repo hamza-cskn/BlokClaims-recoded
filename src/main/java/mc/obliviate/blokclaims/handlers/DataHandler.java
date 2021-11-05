@@ -1,7 +1,7 @@
 package mc.obliviate.blokclaims.handlers;
 
 import mc.obliviate.blokclaims.ChunkID;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 
 import java.util.HashMap;
 
@@ -11,7 +11,7 @@ public class DataHandler {
     /**
      * Main Chunk, ClaimData
      */
-    private final HashMap<ChunkID, ClaimData> allClaimDataList = new HashMap<>();
+    private final HashMap<ChunkID, Claim> allClaimDataList = new HashMap<>();
 
     /**
      * Any Chunk, Main Chunk
@@ -22,18 +22,18 @@ public class DataHandler {
         return allChunkList;
     }
 
-    public HashMap<ChunkID, ClaimData> getAllClaimDataList() {
+    public HashMap<ChunkID, Claim> getAllClaimDataList() {
         return allClaimDataList;
     }
 
-    public void setAllClaimDataList(HashMap<ChunkID, ClaimData> newState) {
+    public void setAllClaimDataList(final HashMap<ChunkID, Claim> newState) {
         if (newState != null) {
             allClaimDataList.clear();
             allClaimDataList.putAll(newState);
         }
     }
 
-    public void setAllChunkList(HashMap<ChunkID, ChunkID> newState) {
+    public void setAllChunkList(final HashMap<ChunkID, ChunkID> newState) {
         if (newState != null) {
             allChunkList.clear();
             allChunkList.putAll(newState);

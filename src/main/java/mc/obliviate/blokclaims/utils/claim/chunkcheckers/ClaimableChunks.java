@@ -2,7 +2,7 @@ package mc.obliviate.blokclaims.utils.claim.chunkcheckers;
 
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.utils.claim.ClaimManager;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 
@@ -29,7 +29,7 @@ public class ClaimableChunks {
 
 
     public ClaimableChunks(BlokClaims plugin, String claimID, String chunkId) {
-        this.cm = plugin.getClaimCore();
+        this.cm = plugin.getClaimManager();
         checkClaimable(claimID, chunkId);
     }
 
@@ -37,8 +37,8 @@ public class ClaimableChunks {
     private void checkClaimable(String claimID, String chunkID) {
 
 
-        ClaimData cdc = cm.getClaimData(chunkID);
-        if (cdc != null) {
+        final Claim claim = cm.getClaimData(chunkID);
+        if (claim != null) {
             result = ClaimableState.CLAIMED;
             return;
         }
@@ -60,7 +60,7 @@ public class ClaimableChunks {
 
 
 
-                    ClaimData cd = cm.getClaimData(new ChunkID((cX + x), (cZ + z), datas[0]));
+                    final Claim cd = cm.getClaimData(new ChunkID((cX + x), (cZ + z), datas[0]));
                     //claim data is not empty
                     if (cd != null) {
                         //kontrol edilen chunk sahibi oyuncu ise.

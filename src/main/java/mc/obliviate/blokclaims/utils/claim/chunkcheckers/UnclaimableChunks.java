@@ -1,7 +1,7 @@
 package mc.obliviate.blokclaims.utils.claim.chunkcheckers;
 
 import mc.obliviate.blokclaims.ChunkID;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.utils.claim.ClaimManager;
 
 import java.util.ArrayList;
@@ -10,12 +10,12 @@ import java.util.List;
 public class UnclaimableChunks {
 
     private final ChunkID id;
-    private final ClaimData cd;
+    private final Claim cd;
     private final List<ChunkID> confirmedChunks = new ArrayList<>();
     private final ClaimManager cm;
     private boolean connected = false;
 
-    public UnclaimableChunks(ClaimManager cm, ClaimData cd, ChunkID id) {
+    public UnclaimableChunks(ClaimManager cm, Claim cd, ChunkID id) {
         this.cd = cd;
         this.id = id;
         this.cm = cm;
@@ -51,7 +51,7 @@ public class UnclaimableChunks {
                     if (!chunkScanning.equals(id)) {
                         chunks.remove(chunkScanningNear);
 
-                        ClaimData cd_scanning = cm.getClaimData(chunkScanning);
+                        Claim cd_scanning = cm.getClaimData(chunkScanning);
 
 
                         //mark with checked

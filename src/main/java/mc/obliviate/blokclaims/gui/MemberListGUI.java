@@ -1,30 +1,38 @@
 package mc.obliviate.blokclaims.gui;
 
-import mc.obliviate.blokclaims.BlokClaims;
-import mc.obliviate.blokclaims.utils.gui.GUI;
-import mc.obliviate.blokclaims.utils.gui.Hytem;
+import mc.obliviate.blokclaims.claim.Claim;
+import mc.obliviate.blokclaims.member.ClaimMember;
 import mc.obliviate.blokclaims.utils.message.Message;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import xyz.efekurbann.inventory.GUI;
+import xyz.efekurbann.inventory.Hytem;
 
 public class MemberListGUI extends GUI {
 
-	public MemberListGUI(BlokClaims plugin) {
-		super(plugin, "claim-stone-gui", "Claim Üyeleri",27);
+	private final Claim cd;
+
+	public MemberListGUI(Player player, Claim cd) {
+		super(player, "claim-stone-gui", "Claim Üyeleri", 27);
+		this.cd = cd;
 	}
 
 	@Override
 	public void onOpen(InventoryOpenEvent event) {
 		super.onOpen(event);
-		addItem(10, new Hytem(Material.MAP, e -> {
-			new MapGUI(getPlugin()).open((Player) e.getWhoClicked());
-		}).setName(Message.color("<#green>Harita")).setLore(
-				"",
-				Message.color("<#gray>Etrafınızdaki claim bölgelerini"),
-				Message.color("<#gray>incelemenizi sağlar."),
-				"",
-				Message.color("<#yellow>Tıkla ve haritayı aç!")
-		));
+
+		fillRow(new Hytem(Material.BLACK_STAINED_GLASS_PANE).setName(""), 0);
+
+		addItem(0, new Hytem(Material.ARROW).onClick(e -> {
+					new ClaimStoneGUI((Player) e.getWhoClicked());
+				})
+				.setName(Message.color("<#red>Geri Dön"))
+				.setLore(Message.color("<#gray>Claim yönetim menüsüne dön.")));
+
+		int i = 9;
+		for (final ClaimMember member : cd.getMembers().values()) {
+			addItem(i++, new Hytem(Material.SKULL_BANNER_PATTERN).setName(Message.color("<#yellow>" + member.getOfflinePlayer().getName())));
+		}
 	}
 }

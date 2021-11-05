@@ -1,6 +1,5 @@
 package mc.obliviate.blokclaims.permission;
 
-import mc.obliviate.blokclaims.ChunkID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -11,12 +10,14 @@ import java.util.UUID;
 public class ClaimPermission {
 
 	private final UUID uuid;
-	private final ChunkID claimID;
 	private final List<ClaimPermissionType> permissions = new ArrayList<>();
 
-	public ClaimPermission(UUID uuid, ChunkID claimID, List<ClaimPermissionType> permissions) {
+	public ClaimPermission(UUID uuid) {
+		this(uuid, null);
+	}
+
+	public ClaimPermission(UUID uuid, List<ClaimPermissionType> permissions) {
 		this.uuid = uuid;
-		this.claimID = claimID;
 		if (permissions != null) {
 			this.permissions.addAll(permissions);
 		}

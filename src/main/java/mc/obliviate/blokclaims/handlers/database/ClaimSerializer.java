@@ -3,12 +3,14 @@ package mc.obliviate.blokclaims.handlers.database;
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
 import mc.obliviate.blokclaims.homes.ClaimHome;
+import mc.obliviate.blokclaims.member.ClaimMember;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import java.lang.reflect.Member;
 import java.util.*;
 
 public class ClaimSerializer {
@@ -78,21 +80,22 @@ public class ClaimSerializer {
 		return chunkList.toString();
 	}
 
-	protected static List<UUID> deserializeMemberList(String stringMemberList) {
-		List<UUID> memberList = new ArrayList<>();
-		for (String memberUUID : stringMemberList.split(",")) {
-			memberList.add(UUID.fromString(memberUUID));
+	protected static HashMap<UUID, ClaimMember> deserializeMemberList(String stringMemberList, HashMap<UUID, ClaimPermission> permissionState) {
+		final HashMap<UUID, ClaimMember> memberList = new HashMap<>();
+		for (final String memberUUID : stringMemberList.split(",")) {
+			final UUID uuid = UUID.fromString(memberUUID);
+			final ClaimMember member = new ClaimMember(uuid, permissionState.get(uuid));
+			memberList.put(uuid, member);
+
 		}
 		return memberList;
 	}
 
-	protected static String serializeMemberList(List<UUID> memberList) {
-		//
-
+	protected static String serializeMemberList(HashMap<UUID, ClaimMember> memberList) {
 		//MemberList = Member1, Member2, Member3...
 		StringBuilder result = new StringBuilder();
-		for (UUID member : memberList) {
-			String uuid = member.toString();
+		for (ClaimMember member : memberList.values()) {
+			String uuid = member.getUuid().toString();
 			result.insert(0, uuid + ",");
 
 			//PermissionStates putting
@@ -119,23 +122,26 @@ public class ClaimSerializer {
 				permissions.add(ClaimPermissionType.valueOf(perm));
 			}
 
-			permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(UUID.fromString(datas[0]), id, permissions));
+			permissionStates.put(UUID.fromString(datas[0]), new ClaimPermission(UUID.fromString(datas[0]), permissions));
 		}
 		return permissionStates;
 	}
 
-	protected static String serializePermissions(HashMap<UUID, ClaimPermission> permissionStates) {
+	protected static String serializePermissions(HashMap<UUID, ClaimMember> members) {
 
-		StringBuilder formattedPermissionState = new StringBuilder();
+		final StringBuilder formattedPermissionState = new StringBuilder();
 		//Format Permission States
-		for (UUID key : permissionStates.keySet()) {
-			StringBuilder format = new StringBuilder();
-			ClaimPermission cps = permissionStates.get(key);
+		for (final ClaimMember member : members.values()) {
+			final StringBuilder format = new StringBuilder();
+			final ClaimPermission cps = member.getPermissions();
+
 			if (cps == null) continue;
-			for (ClaimPermissionType permission : cps.getPermissions()) {
+
+			for (final ClaimPermissionType permission : cps.getPermissions()) {
 				format.insert(0, permission + ";");
 			}
-			formattedPermissionState.insert(0, key + ";" + format + ",");
+
+			formattedPermissionState.insert(0, member.getUuid() + ";" + format + ",");
 		}
 
 		return formattedPermissionState.toString();

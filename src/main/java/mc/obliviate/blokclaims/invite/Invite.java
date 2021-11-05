@@ -1,12 +1,10 @@
 package mc.obliviate.blokclaims.invite;
 
 import mc.obliviate.blokclaims.BlokClaims;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -17,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class Invite {
 
     private boolean expired;
-    private ClaimData cd;
+    private Claim cd;
     private OfflinePlayer target;
     private OfflinePlayer inviter;
     private Boolean answer = null;
@@ -25,11 +23,11 @@ public class Invite {
     private long invitedTime;
     private final BlokClaims plugin;
 
-    public Invite(BlokClaims plugin, Player inviter, OfflinePlayer invited, ClaimData cd) {
+    public Invite(BlokClaims plugin, Player inviter, OfflinePlayer invited, Claim cd) {
         this(plugin, inviter, invited, cd, plugin.getConfigHandler().getConfig().getInt("invite-expire-time", 120));
     }
 
-    public Invite(BlokClaims plugin, Player inviter, OfflinePlayer invited, ClaimData cd, int expireTime) {
+    public Invite(BlokClaims plugin, Player inviter, OfflinePlayer invited, Claim cd, int expireTime) {
         this.plugin = plugin;
 
         if (cd.getInvites().containsKey(invited.getUniqueId().toString())) {
@@ -104,7 +102,7 @@ public class Invite {
         return expired;
     }
 
-    public ClaimData getClaimData() {
+    public Claim getClaimData() {
         return cd;
     }
 

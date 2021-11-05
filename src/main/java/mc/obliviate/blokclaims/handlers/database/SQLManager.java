@@ -2,8 +2,9 @@ package mc.obliviate.blokclaims.handlers.database;
 
 import mc.obliviate.blokclaims.BlokClaims;
 import mc.obliviate.blokclaims.ChunkID;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.homes.ClaimHome;
+import mc.obliviate.blokclaims.member.ClaimMember;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.bloksqliteapi.SQLHandler;
@@ -61,34 +62,30 @@ public class SQLManager extends SQLHandler {
 	public void writeClaimData(final boolean async) throws SQLException {
 
 		plugin.getLogger().info("Writting sql datas...");
-		for (ClaimData claimData : plugin.getDataHandler().getAllClaimDataList().values()) {
+		for (Claim claim : plugin.getDataHandler().getAllClaimDataList().values()) {
 			//Owner = UUID of Owner
-			final String owner = ClaimSerializer.serializeOwner(claimData.getOwner());
+			final String owner = ClaimSerializer.serializeOwner(claim.getOwner());
 			plugin.getLogger().info(owner);
 
-			final String chunkList = ClaimSerializer.serializeChunkList(claimData.getChunkList());
+			final String chunkList = ClaimSerializer.serializeChunkList(claim.getChunkList());
 
-			final HashMap<UUID, ClaimPermission> permissionStates = new HashMap<>();
-			for (final UUID uuid : claimData.getMemberList()) {
-				permissionStates.put(uuid, claimData.getPermissionState(uuid));
-			}
-			final String formattedPermissionState = ClaimSerializer.serializePermissions(permissionStates);
+			final String formattedPermissionState = ClaimSerializer.serializePermissions(claim.getMembers());
 
-			final String memberList = ClaimSerializer.serializeMemberList(claimData.getMemberList());
+			final String memberList = ClaimSerializer.serializeMemberList(claim.getMembers());
 
 			//ClaimID = mainChunk's ID
-			final String claimID = claimData.getClaimID().toString();
+			final String claimID = claim.getClaimID().toString();
 
 			//mainBlockLocation = main block of claim
-			final String mainBlock = ClaimSerializer.serializeMainBlock(claimData.getMainBlock());
+			final String mainBlock = ClaimSerializer.serializeMainBlock(claim.getMainBlock());
 
 			//name, material, world, x, y, z, yaw, pitch
-			final String formattedHomeList = ClaimSerializer.serializeClaimHomeList(claimData.getHomeList());
+			final String formattedHomeList = ClaimSerializer.serializeClaimHomeList(claim.getHomeList());
 
-			final long energy = claimData.getEnergy().getAmount();
+			final long energy = claim.getEnergy().getAmount();
 
 			final SQLUpdateColumn update = claimDataTable.createUpdate(claimID)
-					.putData("claimID",claimID)
+					.putData("claimID", claimID)
 					.putData("owner", owner)
 					.putData("energy", energy)
 					.putData("mainBlock", mainBlock)
@@ -112,7 +109,7 @@ public class SQLManager extends SQLHandler {
 	}
 
 	private void putChunkDatas() {
-		for (ClaimData cd : plugin.getDataHandler().getAllClaimDataList().values()) {
+		for (Claim cd : plugin.getDataHandler().getAllClaimDataList().values()) {
 			for (ChunkID chunkID : cd.getChunkList()) {
 				plugin.getDataHandler().getAllChunkList().put(chunkID, cd.getClaimID());
 			}
@@ -146,36 +143,37 @@ public class SQLManager extends SQLHandler {
 		}
 	}
 
-	public HashMap<ChunkID, ClaimData> callClaimData(boolean async) throws SQLException {
+	public HashMap<ChunkID, Claim> callClaimData(boolean async) throws SQLException {
 
-		final HashMap<ChunkID, ClaimData> resultClaimData = new HashMap<>();
+		final HashMap<ChunkID, Claim> resultClaimData = new HashMap<>();
 		final ResultSet rs = claimDataTable.selectAll();
 
 		plugin.getLogger().info("Calling claim datas...");
 		while (rs.next()) {
-			ChunkID id = new ChunkID(rs.getString("claimID"));
-			int energy = rs.getInt("energy");
+			final ChunkID id = new ChunkID(rs.getString("claimID"));
+			final int energy = rs.getInt("energy");
 
-			UUID owner = ClaimSerializer.deserializeOwner(rs.getString("owner"));
+			final UUID owner = ClaimSerializer.deserializeOwner(rs.getString("owner"));
 			List<ChunkID> chunkList = ClaimSerializer.deserializeChunkList(rs.getString("chunkList"));
 			Debug.log(chunkList + "", false, Debug.DebugType.ORANGE);
-			List<UUID> memberList = ClaimSerializer.deserializeMemberList(rs.getString("memberList"));
-			HashMap<UUID, ClaimPermission> permissionStates = ClaimSerializer.deserializePermissions(rs.getString("permissions"), id);
-			Location mainBlock = ClaimSerializer.deserializeMainBlock(rs.getString("mainBlock"));
-			List<ClaimHome> homeList = ClaimSerializer.deserializeClaimHomeList(rs.getString("homeList"));
+			final HashMap<UUID, ClaimPermission> permissionStates = ClaimSerializer.deserializePermissions(rs.getString("permissions"), id);
+			final HashMap<UUID, ClaimMember> memberList = ClaimSerializer.deserializeMemberList(rs.getString("memberList"), permissionStates);
+
+			final Location mainBlock = ClaimSerializer.deserializeMainBlock(rs.getString("mainBlock"));
+			final List<ClaimHome> homeList = ClaimSerializer.deserializeClaimHomeList(rs.getString("homeList"));
 
 
-			final ClaimData[] cd = new ClaimData[1];
+			final Claim[] cd = new Claim[1];
 			if (async) {
 				new BukkitRunnable() {
 					@Override
 					public void run() {
-						cd[0] = new ClaimData(plugin, owner, memberList, chunkList, mainBlock, id, energy, permissionStates, homeList);
+						cd[0] = new Claim(plugin, owner, memberList, chunkList, mainBlock, id, energy, homeList);
 
 					}
 				}.runTask(plugin);
 			} else {
-				cd[0] = new ClaimData(plugin, owner, memberList, chunkList, mainBlock, id, energy, permissionStates, homeList);
+				cd[0] = new Claim(plugin, owner, memberList, chunkList, mainBlock, id, energy, homeList);
 			}
 			resultClaimData.put(id, cd[0]);
 
