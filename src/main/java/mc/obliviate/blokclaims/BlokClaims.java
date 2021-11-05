@@ -3,13 +3,12 @@ package mc.obliviate.blokclaims;
 import com.hakan.borderapi.bukkit.BorderAPI;
 import mc.obliviate.blokclaims.commands.PlayerCommands;
 import mc.obliviate.blokclaims.handlers.*;
-import mc.obliviate.blokclaims.handlers.database.ClaimSerializer;
 import mc.obliviate.blokclaims.handlers.database.SQLManager;
 import mc.obliviate.blokclaims.listeners.*;
 import mc.obliviate.blokclaims.utils.SignUtils;
 import mc.obliviate.blokclaims.utils.chunkborder.ChunkBorder;
 import mc.obliviate.blokclaims.utils.claim.ClaimManager;
-import mc.obliviate.blokclaims.utils.gui.InventoryAPI;
+import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.teleport.TeleportUtil;
 import mc.obliviate.blokclaims.utils.timer.Timer;
 import net.milkbowl.vault.economy.Economy;
@@ -20,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import xyz.efekurbann.inventory.InventoryAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +29,18 @@ public class BlokClaims extends JavaPlugin {
 	private static final List<String> worldList = new ArrayList<>();
 	public static boolean useHolographicDisplay;
 	private static BorderAPI borderAPI;
-	private InventoryAPI inventoryAPI;
+	private final InventoryAPI inventoryAPI = new InventoryAPI(this);
+	private final HologramHandler hologramHandler = new HologramHandler();
+	private final DataHandler dataHandler = new DataHandler();
+	private final ClaimManager claimManager = new ClaimManager(this);
+	private final ClaimUtils claimUtils = new ClaimUtils(claimManager);
+	private final ChunkBorder chunkBorder = new ChunkBorder(this);
+	private final TeleportUtil teleportUtil = new TeleportUtil(this);
+	private final EconomyHandler economyHandler = new EconomyHandler(this);
 	private SignUtils signUtils;
 	private SQLManager sqlManager;
 	private ConfigHandler configHandler;
-	private HologramHandler hologramHandler;
-	private DataHandler dataHandler;
-	private ClaimManager claimCore;
-	private ChunkBorder chunkBorder;
-	private TeleportUtil teleportUtil;
 	private Economy economy;
-	private EconomyHandler economyHandler;
 
 	public static List<String> getWorldList() {
 		return worldList;
@@ -99,7 +100,7 @@ public class BlokClaims extends JavaPlugin {
 	//TODO USE ENUM LIST
 	private void registerListeners() {
 
-		PluginManager pm = Bukkit.getPluginManager();
+		final PluginManager pm = Bukkit.getPluginManager();
 
 
 		pm.registerEvents(new InteractListener(this), this);
@@ -135,15 +136,9 @@ public class BlokClaims extends JavaPlugin {
 
 	private void setupHandlers() {
 		sqlManager = new SQLManager(getDataFolder().getPath(), this);
-		inventoryAPI = new InventoryAPI(this);
+		inventoryAPI.init();
 		signUtils = new SignUtils(this);
 		configHandler = new ConfigHandler(this);
-		hologramHandler = new HologramHandler();
-		chunkBorder = new ChunkBorder(this);
-		dataHandler = new DataHandler();
-		claimCore = new ClaimManager(this);
-		teleportUtil = new TeleportUtil(this);
-		economyHandler = new EconomyHandler(this);
 		borderAPI = BorderAPI.getInstance(this);
 
 	}
@@ -164,8 +159,8 @@ public class BlokClaims extends JavaPlugin {
 		return sqlManager;
 	}
 
-	public ClaimManager getClaimCore() {
-		return claimCore;
+	public ClaimManager getClaimManager() {
+		return claimManager;
 	}
 
 	public HologramHandler getHologramHandler() {
@@ -192,5 +187,7 @@ public class BlokClaims extends JavaPlugin {
 		return economyHandler;
 	}
 
-
+	public ClaimUtils getClaimUtils() {
+		return claimUtils;
+	}
 }
