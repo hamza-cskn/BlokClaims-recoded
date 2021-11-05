@@ -13,7 +13,7 @@ public class ChunkID {
 	private final String world;
 
 
-	public ChunkID(int x, int z, String world) {
+	public ChunkID(final int x, final int z, final String world) {
 		this.x = x;
 		this.z = z;
 		this.world = world;
@@ -50,10 +50,11 @@ public class ChunkID {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
+	public boolean equals(final Object o) {
 		if (!(o instanceof ChunkID)) return false;
-		if (toString().equalsIgnoreCase(o.toString())) return true;
+		final ChunkID ob = (ChunkID) o;
+		if (ob.getX() == getX() && ob.getZ() == getZ() && ob.getWorld().getName().equalsIgnoreCase(getWorld().getName()))
+			return true;
 		return Objects.equals(toString(), o);
 	}
 
