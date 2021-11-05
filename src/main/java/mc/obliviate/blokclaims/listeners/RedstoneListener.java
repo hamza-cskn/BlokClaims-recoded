@@ -16,7 +16,7 @@ public class RedstoneListener extends ListenerHandler implements Listener{
     @EventHandler
     public void onRedstone(BlockRedstoneEvent e) {
         if (!ClaimUtils.isClaimWorld(e.getBlock().getWorld())) return;
-        if (cm.getClaimData(e.getBlock().getLocation()) == null) e.setNewCurrent(0);
+        if (getClaimUtils().getClaimManager().getClaimData(e.getBlock().getLocation()) == null) e.setNewCurrent(0);
     }
 
 }

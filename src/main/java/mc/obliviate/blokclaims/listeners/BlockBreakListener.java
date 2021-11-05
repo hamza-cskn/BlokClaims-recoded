@@ -1,9 +1,7 @@
 package mc.obliviate.blokclaims.listeners;
 
 import mc.obliviate.blokclaims.BlokClaims;
-import mc.obliviate.blokclaims.claim.ClaimData;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
-import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.permission.ClaimPermissionType;
 import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.utils.message.Message;
@@ -21,11 +19,9 @@ public class BlockBreakListener extends ListenerHandler implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
         if (!ClaimUtils.isClaimWorld(e.getBlock().getWorld())) return;
-        ClaimData cd = cm.getClaimData(e.getBlock().getLocation());
-        if (cd == null) return;
-        ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_BLOCK);
-        boolean spPermState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_SPAWNER);
+
+        final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.PLACE_BREAK_BLOCK, e.getBlock().getLocation());
+        final boolean spPermState = checkPermission(e.getPlayer(), ClaimPermissionType.PLACE_BREAK_SPAWNER, e.getBlock().getLocation());
 
         if (permState && e.getBlock().getType().equals(Material.SPAWNER) && !spPermState) {
             e.setCancelled(true);

@@ -1,7 +1,7 @@
 package mc.obliviate.blokclaims.listeners;
 
 import mc.obliviate.blokclaims.BlokClaims;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.permission.ClaimPermissionType;
@@ -9,7 +9,6 @@ import mc.obliviate.blokclaims.utils.claim.ClaimUtils;
 import mc.obliviate.blokclaims.gui.ClaimStoneGUI;
 import mc.obliviate.blokclaims.utils.debug.Debug;
 import mc.obliviate.blokclaims.utils.message.Message;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.Powerable;
 import org.bukkit.event.EventHandler;
@@ -30,29 +29,26 @@ public class InteractListener extends ListenerHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteractEvent(PlayerInteractEvent e) {
-        Debug.log("PlayerInteractEvent");
         if (!ClaimUtils.isClaimWorld(e.getPlayer().getWorld())) return;
-        Debug.log("-3", true, Debug.DebugType.LIME);
+
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-            Debug.log("-2", true, Debug.DebugType.LIME);
+
             if (!Objects.equals(e.getHand(), EquipmentSlot.HAND)) return;
-            Debug.log("-1", true, Debug.DebugType.LIME);
+
             if (e.getClickedBlock() == null) return;
-            Debug.log("0: " + ClaimUtils.getChunkID(e.getClickedBlock().getLocation()), true, Debug.DebugType.LIME);
-            ClaimData cd = cm.getClaimData(e.getClickedBlock().getLocation());
+
+            final Claim cd = getClaimUtils().getClaimManager().getClaimData(e.getClickedBlock().getLocation());
             if (cd == null) return;
+
             Material type = e.getClickedBlock().getType();
-            Debug.log("1", true, Debug.DebugType.LIME);
+
             if (type.equals(Material.BEDROCK)) {
-                Debug.log("2", true, Debug.DebugType.LIME);
-                if (cd.getMemberList().contains(e.getPlayer().getUniqueId())) {
-                    Debug.log("3", true, Debug.DebugType.LIME);
+
+                if (cd.getMembers().containsKey(e.getPlayer().getUniqueId())) {
+
                     if (cd.getMainBlock().equals(e.getClickedBlock().getLocation())) {
-                        Debug.log("4", true, Debug.DebugType.LIME);
-                        //TODO Player current claim data
-                        //BlokClaims.playerCurrentClaimData.put(e.getPlayer().getUniqueId(), cd.getClaimID());
-                        //TODO Open main claim gui
-                        new ClaimStoneGUI(plugin).open(e.getPlayer());
+
+                        new ClaimStoneGUI(e.getPlayer()).open();
                         e.setCancelled(true);
                     }
                 } else {
@@ -62,8 +58,7 @@ public class InteractListener extends ListenerHandler implements Listener {
 
                 //is it container?
             } else if (e.getClickedBlock().getState() instanceof InventoryHolder) {
-                ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-                boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_CONTAINERS);
+                final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.USE_CONTAINERS, e.getClickedBlock().getLocation());
 
                 if (!permState) {
                     e.setCancelled(true);
@@ -72,9 +67,7 @@ public class InteractListener extends ListenerHandler implements Listener {
                 }
 
             } else if (e.getClickedBlock().getBlockData() instanceof Powerable) {
-                ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-                boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_POWERABLES);
-                //Bukkit.broadcastMessage("Powerable: " + e.getClickedBlock().getType().toString());
+                final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.USE_POWERABLES, e.getClickedBlock().getLocation());
                 if (!permState) {
                     e.setCancelled(true);
                     e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.powerable-cancel"));
@@ -85,43 +78,42 @@ public class InteractListener extends ListenerHandler implements Listener {
             }
 
         } else if (e.getAction().equals(Action.PHYSICAL)) {
-            if (e.getClickedBlock() == null) return;
-            ClaimData cd = cm.getClaimData(e.getClickedBlock().getLocation());
-            if (cd == null) return;
+            onPhysicalInteract(e);
+        }
+    }
 
-            ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-            boolean permState;
-            switch (e.getClickedBlock().getType()) {
+    public void onPhysicalInteract(PlayerInteractEvent e) {
+        if (e.getClickedBlock() == null) return;
+        switch (e.getClickedBlock().getType()) {
 
-                case FARMLAND:
-                    permState = cps != null && cps.hasPermission(ClaimPermissionType.PLACE_BREAK_BLOCK);
+            case FARMLAND:
+                final boolean farmPerm = checkPermission(e.getPlayer(), ClaimPermissionType.PLACE_BREAK_BLOCK, e.getClickedBlock().getLocation());
 
-                    if (!permState) {
-                        e.setCancelled(true);
-                        e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.farmland-destroy-cancel"));
-                    }
-                    break;
-                case TRIPWIRE:
-                case ACACIA_PRESSURE_PLATE:
-                case BIRCH_PRESSURE_PLATE:
-                case CRIMSON_PRESSURE_PLATE:
-                case DARK_OAK_PRESSURE_PLATE:
-                case HEAVY_WEIGHTED_PRESSURE_PLATE:
-                case JUNGLE_PRESSURE_PLATE:
-                case LIGHT_WEIGHTED_PRESSURE_PLATE:
-                case OAK_PRESSURE_PLATE:
-                case POLISHED_BLACKSTONE_PRESSURE_PLATE:
-                case SPRUCE_PRESSURE_PLATE:
-                case STONE_PRESSURE_PLATE:
-                case WARPED_PRESSURE_PLATE:
-                    permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_POWERABLES);
+                if (!farmPerm) {
+                    e.setCancelled(true);
+                    e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.farmland-destroy-cancel"));
+                }
+                break;
+            case TRIPWIRE:
+            case ACACIA_PRESSURE_PLATE:
+            case BIRCH_PRESSURE_PLATE:
+            case CRIMSON_PRESSURE_PLATE:
+            case DARK_OAK_PRESSURE_PLATE:
+            case HEAVY_WEIGHTED_PRESSURE_PLATE:
+            case JUNGLE_PRESSURE_PLATE:
+            case LIGHT_WEIGHTED_PRESSURE_PLATE:
+            case OAK_PRESSURE_PLATE:
+            case POLISHED_BLACKSTONE_PRESSURE_PLATE:
+            case SPRUCE_PRESSURE_PLATE:
+            case STONE_PRESSURE_PLATE:
+            case WARPED_PRESSURE_PLATE:
+                final boolean platePerm = checkPermission(e.getPlayer(), ClaimPermissionType.USE_POWERABLES, e.getClickedBlock().getLocation());
 
-                    if (!permState) {
-                        e.setCancelled(true);
-                        e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.powerable-cancel"));
-                    }
-                    break;
-            }
+                if (!platePerm) {
+                    e.setCancelled(true);
+                    e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.powerable-cancel"));
+                }
+                break;
         }
     }
 

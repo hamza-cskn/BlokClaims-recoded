@@ -1,7 +1,7 @@
 package mc.obliviate.blokclaims.listeners;
 
 import mc.obliviate.blokclaims.BlokClaims;
-import mc.obliviate.blokclaims.claim.ClaimData;
+import mc.obliviate.blokclaims.claim.Claim;
 import mc.obliviate.blokclaims.handlers.ListenerHandler;
 import mc.obliviate.blokclaims.permission.ClaimPermission;
 import mc.obliviate.blokclaims.permission.ClaimPermissionType;
@@ -21,132 +21,115 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 public class EntityInteractListener extends ListenerHandler implements Listener {
 
-    public EntityInteractListener(BlokClaims plugin) {
-        super(plugin);
-    }
+	public EntityInteractListener(BlokClaims plugin) {
+		super(plugin);
+	}
 
-    @EventHandler
-    public void onArmorStandManipule(PlayerArmorStandManipulateEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getRightClicked().getWorld())) return;
-        ClaimData cd = cm.getClaimData(e.getRightClicked().getLocation());
-        if (cd == null) return;
-        ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.ARMOR_STAND_INTERACT);
+	@EventHandler
+	public void onArmorStandManipule(final PlayerArmorStandManipulateEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getRightClicked().getWorld())) return;
+		final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.ARMOR_STAND_INTERACT, e.getRightClicked().getLocation());
 
-        if (permState) return;
-        e.setCancelled(true);
-        e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.armor-stand-interact-cancel"));
-    }
+		if (permState) return;
+		e.setCancelled(true);
+		e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.armor-stand-interact-cancel"));
+	}
 
-    @EventHandler
-    public void onItemFrameInteract(PlayerInteractEntityEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getRightClicked().getWorld())) return;
-        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
-            ClaimData cd = cm.getClaimData(e.getRightClicked().getLocation());
-            if (cd == null) return;
-            ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.ITEM_FRAME_INTERACT);
-            if (permState) return;
-            e.setCancelled(true);
-            e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
-        }
-    }
+	@EventHandler
+	public void onItemFrameInteract(final PlayerInteractEntityEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getRightClicked().getWorld())) return;
+		if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
+			final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.ITEM_FRAME_INTERACT, e.getRightClicked().getLocation());
+			if (permState) return;
+			e.setCancelled(true);
+			e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
+		}
+	}
 
-    //DESTROY EVENTS
-    @EventHandler
-    public void onDamage(EntityDamageByEntityEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
-        if (!e.getDamager().getType().equals(EntityType.PLAYER)) return;
+	//DESTROY EVENTS
+	@EventHandler
+	public void onDamage(final EntityDamageByEntityEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
+		if (!e.getDamager().getType().equals(EntityType.PLAYER)) return;
 
-        ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
-        if (cd == null) return;
+		final Claim cd = getClaimUtils().getClaimManager().getClaimData(e.getEntity().getLocation());
+		if (cd == null) return;
 
-        final Player p = (Player) e.getDamager();
-        final ClaimPermission cps = cd.getPermissionState(p);
-        boolean permState;
+		final Player p = (Player) e.getDamager();
+		boolean permState;
 
-        switch (e.getEntityType()) {
-            case PAINTING:
-            case ITEM_FRAME:
-                permState = cps != null && cps.hasPermission(ClaimPermissionType.ITEM_FRAME_INTERACT);
-                if (permState) return;
-                e.setCancelled(true);
-                p.sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
-                return;
-            case ARMOR_STAND:
-                permState = cps != null && cps.hasPermission(ClaimPermissionType.ARMOR_STAND_INTERACT);
-                if (permState) return;
-                e.setCancelled(true);
-                p.sendActionBar(Message.getConfigMessage("claim-guard.armor-stand-interact-cancel"));
-                return;
-            default:
-                permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
-                if (permState) return;
-                e.setCancelled(true);
-        }
-    }
+		switch (e.getEntityType()) {
+			case PAINTING:
+			case ITEM_FRAME:
+				permState = checkPermission(p, ClaimPermissionType.ITEM_FRAME_INTERACT, e.getEntity().getLocation());
+				if (permState) return;
+				e.setCancelled(true);
+				p.sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
+				return;
+			case ARMOR_STAND:
+				permState = checkPermission(p, ClaimPermissionType.ARMOR_STAND_INTERACT, e.getEntity().getLocation());
+				if (permState) return;
+				e.setCancelled(true);
+				p.sendActionBar(Message.getConfigMessage("claim-guard.armor-stand-interact-cancel"));
+				return;
+			default:
+				permState = checkPermission(p, ClaimPermissionType.INTERACT_MOBS, e.getEntity().getLocation());
+				if (permState) return;
+				e.setCancelled(true);
+		}
+	}
 
-    //DESTROY EVENTS
-    @EventHandler
-    public void onHangingBreakEntity(HangingBreakByEntityEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
-        if (e.getRemover() != null && e.getRemover().getType().equals(EntityType.PLAYER)) {
-            switch (e.getEntity().getType()) {
-                case ITEM_FRAME:
-                case ARMOR_STAND: //actually armor stands does not need it.
-                case PAINTING:
-                    ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
+	//DESTROY EVENTS
+	@EventHandler
+	public void onHangingBreakEntity(final HangingBreakByEntityEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
+		if (e.getRemover() != null && e.getRemover().getType().equals(EntityType.PLAYER)) {
+			switch (e.getEntity().getType()) {
+				case ITEM_FRAME:
+				case ARMOR_STAND: //actually armor stands does not need it.
+				case PAINTING:
 
-                    if (cd == null) return;
+					final Player p = (Player) e.getRemover();
+					final boolean permState = checkPermission(p, ClaimPermissionType.USE_BUCKET, e.getEntity().getLocation());
 
-                    Player p = (Player) e.getRemover();
-                    ClaimPermission cps = cd.getPermissionState(p);
-                    boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.USE_BUCKET);
+					if (permState) return;
+					e.setCancelled(true);
+					p.sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
+					break;
+			}
+		}
+	}
 
-                    if (permState) return;
-                    e.setCancelled(true);
-                    p.sendActionBar(Message.getConfigMessage("claim-guard.item-frame-interact-cancel"));
-                    break;
-            }
-        }
-    }
+	@EventHandler
+	public void onShear(final PlayerShearEntityEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
 
-    @EventHandler
-    public void onShear(PlayerShearEntityEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
-        ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
-        if (cd == null) return;
-        ClaimPermission cps = cd.getPermissionState(e.getPlayer());
-        boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
-        if (permState) return;
-        e.setCancelled(true);
+		final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.INTERACT_MOBS, e.getEntity().getLocation());
+		if (permState) return;
+		e.setCancelled(true);
 
-    }
+	}
 
-    @EventHandler
-    public void onTarget(EntityTargetEvent e) {
-        if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
-        if (e.getTarget() != null && e.getTarget().getType().equals(EntityType.PLAYER)) {
-            Player p = (Player) e.getTarget();
-            ClaimData cd = cm.getClaimData(e.getEntity().getLocation());
-            if (cd == null) return;
-            ClaimPermission cps = cd.getPermissionState(p);
-            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
-            if (permState) return;
-            e.setCancelled(true);
-        }
-    }
+	@EventHandler
+	public void onTarget(final EntityTargetEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getEntity().getWorld())) return;
+		if (e.getTarget() != null && e.getTarget().getType().equals(EntityType.PLAYER)) {
+			final Player p = (Player) e.getTarget();
 
-    @EventHandler
-    public void onMount(EntityMountEvent e) {
-        if (e.getEntityType().equals(EntityType.PLAYER)) {
-            ClaimData cd = cm.getClaimData(e.getMount().getLocation());
-            if (cd == null) return;
-            ClaimPermission cps = cd.getPermissionState((Player) e.getEntity());
-            boolean permState = cps != null && cps.hasPermission(ClaimPermissionType.INTERACT_MOBS);
-            if (permState) return;
-            e.setCancelled(true);
-        }
-    }
+			final boolean permState = checkPermission(p, ClaimPermissionType.INTERACT_MOBS, e.getEntity().getLocation());
+			if (permState) return;
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onMount(final EntityMountEvent e) {
+		if (!ClaimUtils.isClaimWorld(e.getMount().getWorld())) return;
+		if (e.getEntityType().equals(EntityType.PLAYER)) {
+			final boolean permState = checkPermission(((Player) e.getEntity()), ClaimPermissionType.INTERACT_MOBS, e.getMount().getLocation());
+			if (permState) return;
+			e.setCancelled(true);
+		}
+	}
 
 }
