@@ -10,7 +10,7 @@ import xyz.efekurbann.inventory.Hytem;
 public class ClaimStoneGUI extends GUI {
 
 	public ClaimStoneGUI(Player player) {
-		super(player, "claim-stone-gui", Message.getConfigMessage("gui-elements.claim-stone-gui.title", true), 27);
+		super(player, "claim-stone-gui", Message.getConfigMessage("gui-elements.claim-stone-gui.title", true), 3);
 	}
 
 	@Override

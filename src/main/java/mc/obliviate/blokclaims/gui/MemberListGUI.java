@@ -14,7 +14,7 @@ public class MemberListGUI extends GUI {
 	private final Claim cd;
 
 	public MemberListGUI(Player player, Claim cd) {
-		super(player, "claim-stone-gui", "Claim Üyeleri", 27);
+		super(player, "claim-stone-gui", "Claim Üyeleri", 3);
 		this.cd = cd;
 	}
 

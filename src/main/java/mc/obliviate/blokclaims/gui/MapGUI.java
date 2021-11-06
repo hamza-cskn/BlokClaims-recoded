@@ -30,7 +30,7 @@ public class MapGUI extends GUI {
 	private Claim claim;
 
 	public MapGUI(Player player) {
-		super(player, "map-gui", Message.getConfigMessage("gui-elements.map-gui.title", true), 54);
+		super(player, "map-gui", Message.getConfigMessage("gui-elements.map-gui.title", true), 6);
 		plugin = (BlokClaims) getPlugin();
 	}
 
