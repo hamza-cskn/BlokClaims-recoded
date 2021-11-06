@@ -17,7 +17,7 @@ public class BlockBreakListener extends ListenerHandler implements Listener {
     }
 
     @EventHandler
-    public void onBreak(BlockBreakEvent e) {
+    public void onBreak(final BlockBreakEvent e) {
         if (!ClaimUtils.isClaimWorld(e.getBlock().getWorld())) return;
 
         final boolean permState = checkPermission(e.getPlayer(), ClaimPermissionType.PLACE_BREAK_BLOCK, e.getBlock().getLocation());

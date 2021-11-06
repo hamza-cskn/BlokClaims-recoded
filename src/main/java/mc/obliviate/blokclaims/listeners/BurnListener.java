@@ -18,14 +18,6 @@ public class BurnListener extends ListenerHandler implements Listener {
     @EventHandler
     public void onSpread(BlockSpreadEvent e) {
         e.setCancelled(true);
-        /*
-
-        String chunkID = ClaimManager.getChunkID(e.getBlock().getLocation()).toString();
-        ClaimData cd = Main.claimDataList.get(Main.allChunkList.get(chunkID));
-        if (cd != null) {
-            e.setCancelled(true);
-        }
-         */
     }
     @EventHandler
     public void onBurn(BlockBurnEvent e) {

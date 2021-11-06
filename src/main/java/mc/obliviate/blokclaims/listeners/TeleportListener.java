@@ -11,7 +11,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class TeleportListener extends ListenerHandler implements Listener {
 
-
 	public TeleportListener(BlokClaims plugin) {
 		super(plugin);
 	}

@@ -32,7 +32,6 @@ public class BlockPlaceListener extends ListenerHandler implements Listener {
 			return;
 		}
 
-
 		if (!permState) {
 			e.setCancelled(true);
 			e.getPlayer().sendActionBar(Message.getConfigMessage("claim-guard.block-place-cancel"));
