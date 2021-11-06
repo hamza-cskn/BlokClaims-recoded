@@ -76,7 +76,7 @@ public class ClaimUtils {
 
 	public boolean checkPermission(final Player player, final ClaimPermissionType permissionType, final Location location) {
 		final Claim cd = claimManager.getClaimData(location);
-		if (cd == null) return false;
+		if (cd == null) return true; //has all permission in unowned claims
 		final ClaimPermission cps = cd.getMembers().get(player.getUniqueId()).getPermissions();
 
 		return (cps != null && cps.hasPermission(permissionType));
