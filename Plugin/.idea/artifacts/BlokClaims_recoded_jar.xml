@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="BlokClaims-recoded:jar">
+    <output-path>$PROJECT_DIR$/../../Local Servers &amp; Setups/LOCAL 118/plugins</output-path>
+    <root id="archive" name="BlokClaims-recoded.jar">
+      <element id="module-output" name="BlokClaims-recoded" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/io/papermc/paperlib/1.0.6/paperlib-1.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/Obliviated/ObliviateInvs/3.0.1/ObliviateInvs-3.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/Obliviated/BlokSQLiteAPI/1.0.7-a/BlokSQLiteAPI-1.0.7-a.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/hakan-krgn/hWorldBorderAPI/bukkit/1.1.2/bukkit-1.1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/Despical/CommandFramework/1.0.7/CommandFramework-1.0.7.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

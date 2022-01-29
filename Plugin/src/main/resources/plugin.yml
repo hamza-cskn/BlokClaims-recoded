@@ -1,0 +1,7 @@
+name: BlokClaims-recoded
+version: 3.0.0-dev01
+api-version: 1.13
+main: mc.obliviate.blokclaims.BlokClaims
+author: Mr_Obliviate
+description: Custom claim management plugin for Blok Dünyası!
+softdepend: [ Vault, HolographicDisplays ]

@@ -1,0 +1,172 @@
+prefix: '&8[&aBlokClaims&8] '
+usage:
+  invite: '&aDoğru kullanım: &7/blokclaims invite <oyuncu adı>'
+  no-argument-found: '&cNe yazık ki ''{argument}'' adında bir argüman bulunamadı.'
+  kick: '&aDoğru kullanım: &7/blokclaims kick <oyuncu adı>'
+  sethome: '&aDoğru kullanım: &7/blokclaims sethome <ev adı>'
+invite:
+  no-invite-found: '&cHiç davet bulunamadı.'
+  list-title: |-
+    &a&lCLAIM BÖLGESİ&8- &7Davetler
+    &7[Davet edilen] [Davet eden] [Kalan süre]
+  list-no-invite: '&cHiç davet bulunamadı.'
+  you-invited: |-
+    &d{inviter}&7 adlı oyuncu sizi Claim bölgesine davet etti. Eğer davete {expire_time}sn içerisinde cevap verilmezse otomatik olarak reddedilecek.
+    &aKabul etmek&7 için &e/claim katıl&7 komutunu kullanın.
+  invite-expired: '&c{inviter}&7 adlı oyuncunun Claim bölgesi daveti zaman aşımına
+    uğradı.'
+  target-has-invited: '&d{target}&7 adlı oyuncuyu &a{claimID} &7Claim bölgenize davet
+    ettiniz. Eğer davete {expire_time}sn içerisinde cevap verilmezse otomatik olarak
+    reddedilecek.'
+  already-invited: '&c{inviter}&7 adlı oyuncu zaten davet edildi.'
+  list-format: '&8- &7{target} {inviter} &e{time_left}'
+your-location-is-not-clear: '&cBulunduğunuz lokasyonda blok bulunuyor. Lütfen konumunuzu
+  temizledikten sonra tekrar deneyin.'
+permissions:
+  delete-member:
+    name: '&cÜyeyi bölgeden çıkar'
+    description:
+      - ''
+      - '&c{player}&7 adlı oyuncunun izinlerini'
+      - '&7claim bölgenizden siler.'
+  PLACE_BREAK_SPAWNER:
+    name: PLACE_BREAK_SPAWNER
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  PLACE_BREAK_BLOCK:
+    name: PLACE_BREAK_BLOCK
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  ARMOR_STAND_INTERACT:
+    name: ARMOR_STAND_INTERACT
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  ITEM_FRAME_INTERACT:
+    name: ITEM_FRAME_INTERACT
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  USE_BUCKET:
+    name: USE_BUCKET
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  USE_CONTAINERS:
+    name: USE_CONTAINERS
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  USE_POWERABLES:
+    name: USE_POWERABLES
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  OPEN_LOGS:
+    name: OPEN_LOGS
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  INTERACT_MOBS:
+    name: INTERACT_MOBS
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  MANAGE_MEMBERS:
+    name: MANAGE_MEMBERS
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+  EDIT_HOMES:
+    name: EDIT_HOMES
+    description:
+      - '&7Bu &e{player}&7 adlı oyuncu'
+      - '&7izni açmak ve kapatmak için'
+      - '&7bu ikonu kullanın.'
+config-reloaded: '&7Yapılandırma dosyaları başarıyla yeniden yüklendi. ({ms}ms)'
+your-home-successfully-added: '&eClaim bölgesine &a{home}&e adlı eviniz başarıyla
+  eklendi!'
+claim-guard:
+  farmland-destroy-cancel: '[NO_PREFIX]&cBu bölgedeki tarım bölgelerine zarar veremezsiniz.'
+  use-bucket-cancel: '[NO_PREFIX]&cBu bölgede kova kullanamazsınız.'
+  teleport-cancel: '[NO_PREFIX]&cYetkisiz olduğunuz bir claim bölgesine olan ışınlanmanız
+    iptal edildi.'
+  spawner-place-cancel: '[NO_PREFIX]&cBu bölgeye spawner yerleştiremezsiniz.'
+  armor-stand-interact-cancel: '[NO_PREFIX]&cBu bölgedeki zırh askılıklarına dokunamazsınız.'
+  block-break-cancel: '[NO_PREFIX]&cBu bölgedeki blokları kıramazsınız.'
+  spawner-break-cancel: '[NO_PREFIX]&cBu bölgedeki spawnerları kıramazsınız.'
+  item-frame-interact-cancel: '[NO_PREFIX]&cBu bölgedeki eşya çerçevelerine ve tablolara
+    dokunamazsınız.'
+  powerable-cancel: '[NO_PREFIX]&cBu bölgede kızıltaş enerjisi ile çalışan blokları
+    kullanamazsınız.'
+  interact-cancel: '[NO_PREFIX]&cBu bölgede etkileşimde bulunamazsınız.'
+  use-containers-cancel: '[NO_PREFIX]&cBu bölgede sandık, varil ve benzeri blokları
+    kullanamazsınız veya kıramazsınız.'
+  block-place-cancel: '[NO_PREFIX]&cBu bölgeye blok yerleştiremezsiniz.'
+home:
+  teleported:
+    subtitle: '&e{home} adlı eve ışınlandırıldınız.'
+    title: '&aIşınlandırıldınız'
+  teleporting:
+    title: '&aIşınlandırılıyorsunuz'
+    subtitle: '&e{time} saniye'
+  teleport-cancelled:
+    title: '&cIptal Edildi'
+    subtitle: '&7Işınlanmanız iptal edildi.'
+  list-name: '&d{home}'
+  list-description:
+    - ''
+    - '&7Bölge eviniz sizin ve ekibinizin'
+    - '&7ışınlanma noktasıdır.'
+    - ''
+    - '&eSol tıklayın ve ışınlanın'
+    - '&eSağ tıklayın ve düzenleyin'
+successfully-teleported-to-claim-home: '&eBaşarıyla &a{home}&e isimli claim evinize
+  ışınlandırıldınız.'
+target-is-not-online: '&cBu oyuncu çevrimiçi değil.'
+target-already-added-this-claim: '&cBu oyuncu zaten eklemeye çalıştığınız claim bölgesine
+  eklenmiş.'
+chunk-has-been-deleted: '&c{chunk} isimli chunk bölgesini claiminizden kalıcı olarak
+  kaldırdınız.'
+you-can-it-in-this-world: '&cBu dünyada bu işlemi gerçekleştiremezsiniz.'
+you-are-not-on-your-claim: '&cŞu anda kendi bölgenizde bulunmuyorsunuz.'
+teleporting-to-claim-home: '&eClaim evinize ışınlanmanıza &f{time_left} saniye &ekaldı.'
+you-can-not-do-this: '&cBu işlemi gerçekleştiremezsiniz.'
+you-can-not-empty-lava-bucket-here: '&cSahipsiz claim bölgesine lav kovası boşaltamazsınız.'
+you-dont-have-enough-permission: '&cBu işlemi yalnızca yetkililer yapabilir.'
+target-is-not-member-of-your-claim: '&cBu oyuncu claim bölgenizin bir üyesi değil.'
+target-is-member-of-your-claim: '&cBu oyuncu claim bölgenizin bir üyesi.'
+target-successfully-kicked-from-your-claim: '&c{player} adlı oyuncu claim bölgenizden
+  başarıyla atıldı.'
+claim-stone-has-moved: '&7Claim taşını taşıma işlemi başarıyla gerçekleştirildi.'
+gui-elements:
+  map-gui:
+    title: <#dark_blue>Harita
+  claim-stone-gui:
+    title: <#dark_blue>Claim Taşı
+you-can-not-afford: '&cBu işlemi gerçekleştirmeniz için {need} akçeye ihtiyacınız
+  var.'
+help-message:
+  - <#orange>Blok Dünyası
+  - ''
+  - '&6* &e/claim yardım &8- &7 Bu yazıları gösterir.'
+  - '&6* &e/claim create &8- &7 Yeni bir Claim bölgesi oluşturur.'
+  - '&6* &e/claim addhome &8- &7 Claim evi eklemenizi sağlar.'
+  - ''
+add-new-member-sign-lines:
+  - ''
+  - ^^^^^^^^
+  - '&cEklemek istediğiniz'
+  - '&cüyenin adını yazın!'
